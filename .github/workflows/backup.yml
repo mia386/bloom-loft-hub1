@@ -1,0 +1,26 @@
+# Save as: .github/workflows/backup.yml in your GitHub repo
+# Add secrets: SUPABASE_URL and SUPABASE_KEY in repo Settings > Secrets
+
+name: Weekly Bloom Loft Backup
+on:
+  schedule:
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch from Supabase
+        run: |
+          mkdir -p backup
+          for table in content_posts content_ideas content_links content_types; do
+            curl -s "${{ secrets.SUPABASE_URL }}/rest/v1/$table?select=*"               -H "apikey: ${{ secrets.SUPABASE_KEY }}"               -H "Authorization: Bearer ${{ secrets.SUPABASE_KEY }}"               > backup/$table.json
+          done
+          echo "Backed up $(date -u)" > backup/last_backup.txt
+      - name: Commit
+        run: |
+          git config user.name "Bloom Loft Bot"
+          git config user.email "bot@bloomloft.com"
+          git add backup/
+          git diff --staged --quiet || git commit -m "Backup $(date +%Y-%m-%d)" && git push
