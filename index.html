@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bloom Loft — Content Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:14px;}
+:root{
+  --cream:#faf8f4;--warm:#f4efe6;--border:#e0d8cc;
+  --ink:#2c2820;--ink2:#5a5248;--ink3:#9a9087;--white:#ffffff;
+  --sage:#6b8f6b;--sage-bg:#edf3ed;--sage-mid:#b8d0b8;
+  --gold:#b8952a;--gold-bg:#faf3e0;--gold-mid:#e5cc80;
+  --clay:#b86040;--clay-bg:#faf0eb;--clay-mid:#e0b09a;
+  --plum:#7a5c8a;--plum-bg:#f3eef8;--plum-mid:#c8b0d8;
+  --sky:#4a7a9b;--sky-bg:#eaf3f9;--sky-mid:#a8c8e0;
+  --radius:8px;--radius-lg:12px;
+  --shadow:0 1px 4px rgba(44,40,32,.07),0 4px 16px rgba(44,40,32,.04);
+  --shadow-lg:0 4px 24px rgba(44,40,32,.13);
+}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;}
+
+/* TOPBAR */
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:50;}
+.logo{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:500;letter-spacing:-.3px;}
+.logo em{color:var(--sage);font-style:italic;}
+.topbar-right{display:flex;align-items:center;gap:8px;}
+.role-switcher{display:flex;align-items:center;gap:5px;}
+.role-label{font-size:10px;color:var(--ink3);margin-right:2px;}
+.role-btn{font-size:11px;font-weight:500;padding:4px 11px;border-radius:20px;border:1px solid var(--border);background:none;cursor:pointer;color:var(--ink2);font-family:'DM Sans',sans-serif;transition:all .15s;}
+.role-btn:hover{border-color:var(--sage);color:var(--sage);}
+.role-btn.active{background:var(--sage);border-color:var(--sage);color:#fff;}
+.topbar-action{font-size:11px;font-weight:500;padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:none;cursor:pointer;color:var(--ink2);font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:4px;transition:all .15s;white-space:nowrap;}
+.topbar-action:hover{background:var(--warm);}
+
+/* NAV */
+.nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;overflow-x:auto;}
+.nav-item{font-size:12px;font-weight:500;color:var(--ink3);padding:11px 14px;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;}
+.nav-item:hover{color:var(--ink);}
+.nav-item.active{color:var(--sage);border-bottom-color:var(--sage);}
+
+/* PAGES */
+.page{display:none;padding:1.5rem;}
+.page.active{display:block;}
+
+/* CALENDAR */
+.cal-controls{display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap;}
+.cal-nav-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:13px;color:var(--ink2);font-family:'DM Sans',sans-serif;}
+.cal-nav-btn:hover{background:var(--warm);}
+.cal-period-label{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:500;flex:1;}
+.type-legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1rem;padding:9px 13px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink2);}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.cal-grid-wrap{overflow-x:auto;}
+.cal-grid{display:grid;grid-template-columns:52px repeat(28,1fr);border-left:1px solid var(--border);border-top:1px solid var(--border);min-width:900px;}
+.cal-corner{background:var(--warm);border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:4px;}
+.cal-day-head{background:var(--warm);border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:4px 2px;text-align:center;min-width:30px;}
+.cal-day-head .dhd{font-size:8px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--ink3);}
+.cal-day-head .dhn{font-size:12px;font-weight:500;color:var(--ink);}
+.cal-day-head.today-head{background:var(--sage-bg);}
+.cal-day-head.today-head .dhn{color:var(--sage);font-weight:700;}
+.cal-day-head.mon-head{background:var(--gold-bg);}
+.cal-week-label{background:var(--warm);border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:4px;display:flex;align-items:center;justify-content:center;}
+.cal-week-label span{font-size:8px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--ink3);writing-mode:vertical-rl;transform:rotate(180deg);}
+.cal-cell{border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:2px;min-height:60px;position:relative;cursor:pointer;transition:background .1s;}
+.cal-cell:hover{background:rgba(107,143,107,.07);}
+.cal-cell.today-cell{background:rgba(107,143,107,.05);}
+.cal-cell.mon-cell{background:rgba(184,149,42,.04);}
+.cal-pill{border-radius:3px;padding:2px 4px;font-size:8px;font-weight:600;margin-bottom:1px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:3px;transition:opacity .15s;}
+.cal-pill:hover{opacity:.75;}
+.cal-pill .pdot{width:4px;height:4px;border-radius:50%;flex-shrink:0;}
+.mon-bar{background:var(--gold-bg);border:1px solid var(--gold-mid);color:var(--gold);font-size:7px;font-weight:700;padding:1px 3px;border-radius:2px;margin-bottom:1px;text-align:center;}
+.cal-add{position:absolute;bottom:1px;right:1px;width:12px;height:12px;border-radius:50%;border:1px dashed var(--border);background:none;cursor:pointer;display:none;align-items:center;justify-content:center;font-size:9px;color:var(--ink3);line-height:1;}
+.cal-cell:hover .cal-add{display:flex;}
+
+/* WEEK/CARD VIEW */
+.week-block{margin-bottom:2rem;}
+.week-header{display:flex;align-items:center;gap:1rem;margin-bottom:1rem;}
+.week-label{font-family:'Cormorant Garamond',serif;font-size:.85rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);}
+.week-divider{flex:1;height:1px;background:var(--border);}
+.week-add-btn{font-size:11px;padding:4px 12px;border-radius:20px;border:1px dashed var(--border);background:none;cursor:pointer;color:var(--ink3);font-family:'DM Sans',sans-serif;transition:all .15s;}
+.week-add-btn:hover{border-color:var(--sage);color:var(--sage);}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(295px,1fr));gap:1rem;}
+
+/* POST CARD */
+.post-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);transition:box-shadow .2s,border-color .2s;position:relative;}
+.post-card:hover{box-shadow:var(--shadow-lg);border-color:var(--sage-mid);}
+.post-card.blocked{border-color:var(--clay-mid);}
+.post-card.blocked::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--clay);}
+.type-bar{height:5px;width:100%;}
+.card-header{padding:9px 13px 8px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.card-tags{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.tag{font-size:9px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;padding:2px 7px;border-radius:4px;}
+.tag.ig{background:var(--clay-bg);color:var(--clay);border:1px solid var(--clay-mid);}
+.tag.yt{background:var(--sage-bg);color:var(--sage);border:1px solid var(--sage-mid);}
+.tag.tt{background:var(--plum-bg);color:var(--plum);border:1px solid var(--plum-mid);}
+.card-assignee{font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;white-space:nowrap;}
+.a-brooklin{background:var(--sky-bg);color:var(--sky);}
+.a-alisa{background:var(--plum-bg);color:var(--plum);}
+.a-mia{background:var(--sage-bg);color:var(--sage);}
+.a-faye{background:var(--gold-bg);color:var(--gold);}
+.pipeline-track{display:flex;border-bottom:1px solid var(--border);background:var(--cream);}
+.pipeline-step{flex:1;padding:5px 3px;text-align:center;position:relative;}
+.pipeline-step:not(:last-child)::after{content:'';position:absolute;right:0;top:20%;bottom:20%;width:1px;background:var(--border);}
+.ps-name{font-size:8px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:2px;}
+.ps-date{font-size:10px;font-weight:500;color:var(--ink2);}
+.pipeline-step.done .ps-name,.pipeline-step.done .ps-date{color:var(--sage);}
+.pipeline-step.active .ps-date{font-size:9px;font-weight:600;color:#fff;background:var(--sage);border-radius:3px;padding:1px 4px;display:inline-block;}
+.pipeline-step.overdue .ps-date{color:#fff;background:var(--clay);border-radius:3px;padding:1px 4px;display:inline-block;}
+.card-body{padding:10px 13px;}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:600;line-height:1.35;margin-bottom:5px;}
+.card-desc{font-size:11.5px;color:var(--ink2);line-height:1.55;margin-bottom:6px;}
+.card-uses{font-size:11px;color:var(--sage);font-weight:500;margin-bottom:6px;display:flex;gap:4px;}
+.card-uses::before{content:'→';flex-shrink:0;}
+.appr-badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;margin-top:2px;}
+.appr-badge.approved{background:var(--sage-bg);color:var(--sage);}
+.appr-badge.revisions{background:var(--clay-bg);color:var(--clay);}
+.appr-badge.pending{background:var(--gold-bg);color:var(--gold);}
+.subtasks{border-top:1px solid var(--border);padding:8px 13px;}
+.sg-label{font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);margin-bottom:4px;margin-top:6px;}
+.sg-label:first-child{margin-top:0;}
+.st-item{display:flex;align-items:flex-start;gap:7px;padding:2px 0;}
+.st-check{width:14px;height:14px;border:1.5px solid var(--sage-mid);border-radius:3px;appearance:none;flex-shrink:0;margin-top:2px;position:relative;cursor:pointer;transition:all .15s;}
+.st-check:checked{background:var(--sage);border-color:var(--sage);}
+.st-check:checked::after{content:'';position:absolute;left:3px;top:1px;width:5px;height:8px;border:1.5px solid #fff;border-top:none;border-left:none;transform:rotate(45deg);}
+.st-check:disabled{cursor:default;opacity:.5;}
+.st-text{font-size:11.5px;color:var(--ink2);line-height:1.4;flex:1;}
+.st-text.done{text-decoration:line-through;color:var(--ink3);}
+.card-footer{padding:7px 13px;border-top:1px solid var(--border);background:var(--cream);display:flex;align-items:center;justify-content:space-between;}
+.card-progress{display:flex;align-items:center;gap:6px;flex:1;}
+.pb-bg{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden;max-width:80px;}
+.pb-fill{height:100%;background:var(--sage);border-radius:2px;transition:width .3s;}
+.pb-lbl{font-size:10px;color:var(--ink3);}
+.card-edit-btn{font-size:11px;padding:3px 9px;border-radius:6px;border:1px solid var(--border);background:none;cursor:pointer;color:var(--ink3);font-family:'DM Sans',sans-serif;transition:all .15s;}
+.card-edit-btn:hover{background:var(--sage-bg);color:var(--sage);border-color:var(--sage-mid);}
+.blocker-notice{background:var(--clay-bg);border-top:1px solid var(--clay-mid);padding:7px 13px;font-size:11px;color:var(--clay);font-weight:500;display:flex;gap:5px;}
+.blocker-notice::before{content:'⚑';flex-shrink:0;}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(44,40,32,.45);z-index:200;display:none;align-items:flex-start;justify-content:center;padding:28px 14px;overflow-y:auto;}
+.overlay.open{display:flex;}
+.modal{background:var(--white);border-radius:var(--radius-lg);width:100%;max-width:580px;box-shadow:var(--shadow-lg);overflow:hidden;margin:auto;}
+.modal-head{background:var(--warm);padding:13px 17px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.modal-head h3{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:500;}
+.modal-close{background:none;border:none;cursor:pointer;font-size:1.3rem;color:var(--ink3);line-height:1;}
+.modal-body{padding:15px 17px;max-height:72vh;overflow-y:auto;}
+.fs{margin-bottom:1rem;}
+.fsl{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);margin-bottom:6px;padding-bottom:3px;border-bottom:1px solid var(--border);}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.fr{display:flex;flex-direction:column;gap:3px;margin-bottom:8px;}
+.fr label{font-size:10px;font-weight:500;color:var(--ink3);}
+.fr input,.fr select,.fr textarea{padding:6px 9px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);width:100%;transition:border-color .15s;}
+.fr input:focus,.fr select:focus,.fr textarea:focus{outline:none;border-color:var(--sage);background:var(--white);}
+.fr textarea{resize:vertical;min-height:60px;}
+.st-add-row{display:flex;gap:6px;margin-bottom:6px;}
+.st-add-row input{flex:1;}
+.add-st-btn{padding:6px 10px;border-radius:6px;border:1px solid var(--sage-mid);background:var(--sage-bg);color:var(--sage);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.st-edit-list{display:flex;flex-direction:column;gap:3px;}
+.st-edit-row{display:flex;align-items:center;gap:6px;background:var(--cream);border-radius:5px;padding:4px 7px;}
+.st-edit-row span{flex:1;font-size:11px;color:var(--ink2);}
+.st-rm-btn{background:none;border:none;cursor:pointer;color:var(--ink3);font-size:13px;line-height:1;}
+.st-rm-btn:hover{color:var(--clay);}
+.st-grp-badge{font-size:9px;font-weight:600;padding:1px 5px;border-radius:3px;background:var(--plum-bg);color:var(--plum);text-transform:uppercase;}
+.appr-panel{background:var(--gold-bg);border:1px solid var(--gold-mid);border-radius:8px;padding:10px 13px;margin-bottom:.9rem;}
+.appr-panel .apl{font-size:10px;font-weight:600;color:var(--gold);letter-spacing:.5px;text-transform:uppercase;margin-bottom:7px;}
+.appr-btns{display:flex;gap:6px;}
+.appr-btn{flex:1;padding:6px;border-radius:6px;border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.appr-btn.approve{background:var(--sage);color:#fff;}
+.appr-btn.revise{background:var(--clay);color:#fff;}
+.appr-btn.pend{background:var(--warm);color:var(--ink2);border:1px solid var(--border);}
+.appr-note{margin-top:6px;font-size:11px;font-weight:500;}
+.appr-note.approved{color:var(--sage);}
+.appr-note.revisions{color:var(--clay);}
+.modal-actions{display:flex;gap:7px;padding:12px 17px;border-top:1px solid var(--border);background:var(--cream);}
+.btn-save{flex:1;padding:8px;background:var(--sage);color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.btn-save:hover{background:#5a7a5a;}
+.btn-del{padding:8px 13px;background:none;color:var(--clay);border:1px solid var(--clay-mid);border-radius:7px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.btn-del:hover{background:var(--clay-bg);}
+.btn-cancel{padding:8px 13px;background:none;border:1px solid var(--border);border-radius:7px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2);}
+
+/* PIN MODAL */
+.pin-modal{background:var(--white);border-radius:var(--radius-lg);width:100%;max-width:320px;box-shadow:var(--shadow-lg);padding:1.8rem;text-align:center;margin:auto;}
+.pin-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:500;margin-bottom:.4rem;}
+.pin-sub{font-size:12px;color:var(--ink3);margin-bottom:1.4rem;}
+.pin-dots{display:flex;justify-content:center;gap:10px;margin-bottom:1.4rem;}
+.pin-dot{width:13px;height:13px;border-radius:50%;border:2px solid var(--border);background:var(--cream);transition:all .15s;}
+.pin-dot.filled{background:var(--sage);border-color:var(--sage);}
+.pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;max-width:190px;margin:0 auto .8rem;}
+.pin-key{padding:11px;border-radius:7px;border:1px solid var(--border);background:var(--white);font-size:1.1rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
+.pin-key:hover{background:var(--sage-bg);border-color:var(--sage-mid);}
+.pin-key:active{transform:scale(.95);}
+.pin-key.del{background:var(--warm);}
+.pin-err{color:var(--clay);font-size:12px;min-height:17px;}
+
+/* TYPE MANAGER */
+.type-manager-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:7px;margin-bottom:9px;}
+.type-chip{display:flex;align-items:center;gap:6px;padding:6px 9px;border-radius:6px;border:1px solid var(--border);background:var(--cream);}
+.type-chip-swatch{width:11px;height:11px;border-radius:3px;flex-shrink:0;}
+.type-chip-name{font-size:12px;flex:1;color:var(--ink2);}
+.type-chip-del{background:none;border:none;cursor:pointer;color:var(--ink3);font-size:13px;padding:0 2px;}
+.type-chip-del:hover{color:var(--clay);}
+.add-type-row{display:flex;gap:7px;align-items:center;}
+.add-type-row input{flex:1;padding:6px 9px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;background:var(--cream);}
+.add-type-row input:focus{outline:none;border-color:var(--sage);}
+.color-pick-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.cswatch{width:20px;height:20px;border-radius:4px;border:2px solid transparent;cursor:pointer;transition:transform .12s;}
+.cswatch:hover{transform:scale(1.15);}
+.cswatch.sel{border-color:var(--ink);}
+
+/* LINKS */
+.links-header-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;}
+.links-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1rem;}
+.link-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);}
+.link-card-head{padding:9px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.link-cat-tag{font-size:9px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;padding:2px 7px;border-radius:4px;background:var(--warm);color:var(--ink2);border:1px solid var(--border);}
+.link-card-actions{display:flex;gap:4px;}
+.link-action-btn{font-size:11px;padding:3px 8px;border-radius:5px;border:1px solid var(--border);background:none;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink3);transition:all .15s;}
+.link-action-btn:hover{background:var(--sage-bg);color:var(--sage);border-color:var(--sage-mid);}
+.link-action-btn.email-btn{background:var(--sky-bg);color:var(--sky);border-color:var(--sky-mid);}
+.link-card-body{padding:11px 13px;}
+.link-title{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;margin-bottom:4px;}
+.link-desc{font-size:11.5px;color:var(--ink2);line-height:1.5;margin-bottom:6px;}
+.link-url{font-size:11px;color:var(--sky);word-break:break-all;display:flex;gap:4px;}
+.link-url::before{content:'↗';flex-shrink:0;}
+.link-assignees{display:flex;gap:4px;flex-wrap:wrap;margin-top:7px;}
+
+/* MEETING */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:500;}
+.metric-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1.25rem;}
+.metric-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;text-align:center;}
+.metric-val{font-size:2rem;font-weight:300;line-height:1;margin-bottom:3px;}
+.metric-lbl{font-size:10px;color:var(--ink3);}
+.meeting-block{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:1rem;}
+.meeting-block h4{font-size:12px;font-weight:500;color:var(--ink2);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.meeting-block h4 .sub{font-size:10px;color:var(--ink3);font-weight:400;}
+.meet-row{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;cursor:pointer;}
+.meet-row:last-child{border-bottom:none;}
+.meet-row:hover{color:var(--sage);}
+.meet-title{flex:1;}
+.meet-date{color:var(--ink3);white-space:nowrap;font-size:11px;}
+.notes-area{width:100%;min-height:85px;border:1px solid var(--border);border-radius:7px;padding:8px 10px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);resize:vertical;}
+.notes-area:focus{outline:none;border-color:var(--sage);}
+
+/* IDEAS */
+.idea-input-bar{display:flex;gap:7px;margin-bottom:1.25rem;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;align-items:center;}
+.idea-input-bar select,.idea-input-bar input{border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:12px;font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);}
+.idea-input-bar input{flex:1;}
+.idea-input-bar input:focus,.idea-input-bar select:focus{outline:none;border-color:var(--sage);}
+.idea-submit{padding:6px 12px;background:var(--sage);color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.ideas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:9px;}
+.idea-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:11px 13px;}
+.idea-meta{display:flex;align-items:center;gap:5px;margin-bottom:5px;}
+.idea-date{font-size:10px;color:var(--ink3);}
+.idea-text{font-size:12px;color:var(--ink2);line-height:1.5;margin-bottom:7px;}
+.idea-actions{display:flex;gap:5px;}
+.idea-btn{font-size:11px;padding:3px 9px;border-radius:5px;border:1px solid var(--border);background:none;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--ink2);}
+.idea-btn.promote{background:var(--sage-bg);color:var(--sage);border-color:var(--sage-mid);}
+
+/* EMAIL */
+.email-body-wrap{padding:15px 17px;}
+.email-to-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.email-recip{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);display:flex;align-items:center;gap:5px;cursor:pointer;transition:all .15s;}
+.email-recip.sel{background:var(--sage);color:#fff;border-color:var(--sage);}
+.ef{margin-bottom:9px;}
+.ef label{font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:3px;}
+.ef input,.ef textarea{width:100%;padding:7px 9px;border:1px solid var(--border);border-radius:6px;font-size:12.5px;font-family:'DM Sans',sans-serif;background:var(--cream);}
+.ef textarea{min-height:110px;resize:vertical;}
+.ef input:focus,.ef textarea:focus{outline:none;border-color:var(--sage);}
+.email-send-btn{width:100%;padding:9px;background:var(--sky);color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:4px;}
+.email-send-btn:hover{opacity:.9;}
+
+/* EXPORT */
+.export-code{background:#1e1e1e;color:#d4d4d4;font-family:monospace;font-size:11px;padding:12px;border-radius:7px;overflow:auto;max-height:270px;white-space:pre;margin-bottom:8px;}
+.copy-btn{padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:var(--white);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--ink2);}
+.copy-btn:hover{background:var(--sage-bg);color:var(--sage);}
+.export-tabs{display:flex;gap:5px;margin-bottom:9px;}
+.export-tab{padding:4px 11px;border-radius:5px;border:1px solid var(--border);background:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;color:var(--ink2);}
+.export-tab.active{background:var(--sage);color:#fff;border-color:var(--sage);}
+
+/* IG GRID */
+.ig-grid{display:grid;gap:3px;margin-bottom:1.5rem;}
+.ig-grid.cols-3{grid-template-columns:repeat(3,1fr);}
+.ig-grid.cols-6{grid-template-columns:repeat(6,1fr);}
+.ig-grid.cols-9{grid-template-columns:repeat(9,1fr);}
+.ig-cell{aspect-ratio:1/1;position:relative;border-radius:4px;overflow:hidden;cursor:pointer;background:var(--warm);border:1px solid var(--border);}
+.ig-cell:hover .ig-overlay{opacity:1;}
+.ig-cell-inner{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;gap:4px;}
+.ig-type-bar{position:absolute;top:0;left:0;right:0;height:4px;}
+.ig-story-indicator{position:absolute;top:5px;left:5px;font-size:8px;font-weight:700;padding:2px 5px;border-radius:3px;background:rgba(74,122,155,.15);color:var(--sky);border:1px solid var(--sky-mid);letter-spacing:.5px;text-transform:uppercase;}
+.ig-cell-title{font-family:'Cormorant Garamond',serif;font-size:.75rem;font-weight:600;text-align:center;line-height:1.3;color:var(--ink);word-break:break-word;}
+.ig-cell-date{font-size:9px;color:var(--ink3);font-weight:500;}
+.ig-cell-status{font-size:8px;font-weight:600;padding:2px 5px;border-radius:3px;text-transform:uppercase;letter-spacing:.4px;}
+.ig-overlay{position:absolute;inset:0;background:rgba(44,40,32,.6);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transition:opacity .18s;padding:8px;gap:4px;}
+.ig-overlay-title{font-family:'Cormorant Garamond',serif;font-size:.8rem;font-weight:600;color:#fff;text-align:center;line-height:1.3;}
+.ig-overlay-sub{font-size:9px;color:rgba(255,255,255,.75);text-align:center;}
+.ig-overlay-badge{font-size:9px;font-weight:600;padding:2px 6px;border-radius:3px;margin-top:2px;}
+.ig-overlay-badge.approved{background:var(--sage);color:#fff;}
+.ig-overlay-badge.pending{background:var(--gold);color:#fff;}
+.ig-overlay-badge.revisions{background:var(--clay);color:#fff;}
+.ig-empty-slot{aspect-ratio:1/1;border-radius:4px;border:1px dashed var(--border);background:none;display:flex;align-items:center;justify-content:center;color:var(--ink3);font-size:11px;cursor:pointer;}
+.ig-empty-slot:hover{background:var(--sage-bg);border-color:var(--sage-mid);color:var(--sage);}
+.ig-week-label{font-family:'Cormorant Garamond',serif;font-size:.8rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);margin-bottom:6px;margin-top:1rem;display:flex;align-items:center;gap:10px;}
+.ig-week-label:first-child{margin-top:0;}
+.ig-week-label::after{content:'';flex:1;height:1px;background:var(--border);}
+/* Calendar row labels */
+.cal-row-label{background:var(--warm);border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:3px 4px;display:flex;align-items:center;justify-content:center;}
+.cal-row-label span{font-size:8px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ink3);writing-mode:vertical-rl;transform:rotate(180deg);}
+.cal-row-label.stories-lbl span{color:var(--sky);}
+.cal-row-label.posts-lbl span{color:var(--sage);}
+.cal-cell.story-row{min-height:44px;background:rgba(74,122,155,.03);}
+.cal-cell.post-row{min-height:50px;}
+
+.empty-col{text-align:center;padding:2rem;color:var(--ink3);font-size:12px;border:1px dashed var(--border);border-radius:var(--radius);}
+.badge-plat{display:inline-block;font-size:9px;font-weight:600;padding:2px 5px;border-radius:3px;text-transform:uppercase;}
+.badge-plat.ig{background:var(--clay-bg);color:var(--clay);}
+.badge-plat.yt{background:var(--sage-bg);color:var(--sage);}
+.badge-plat.tt{background:var(--plum-bg);color:var(--plum);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">Bloom Loft <em>Content Hub</em></div>
+  <div class="topbar-right">
+    <div class="role-switcher">
+      <span class="role-label">Viewing as</span>
+      <button class="role-btn active" onclick="trySetRole('mia',this)">Mia 🔒</button>
+      <button class="role-btn" onclick="trySetRole('faye',this)">Faye</button>
+      <button class="role-btn" onclick="trySetRole('brooklin',this)">Brooklin</button>
+      <button class="role-btn" onclick="trySetRole('alisa',this)">Alisa</button>
+    </div>
+    <span id="sync-status" style="font-size:10px;color:var(--ink3);"></span><button class="topbar-action" onclick="openSettings()">⚙ Settings</button><button class="topbar-action" onclick="openExport()">↓ Export / Sync</button>
+  </div>
+</div>
+
+<div class="nav">
+  <div class="nav-item active" onclick="showPage('planner',this)">Planner</div>
+  <div class="nav-item" onclick="showPage('calendar',this)">4-Week Calendar</div>
+  <div class="nav-item" onclick="showPage('meeting',this)">Monday Meeting</div>
+  <div class="nav-item" onclick="showPage('ideas',this)">Ideas Bank</div>
+  <div class="nav-item" onclick="showPage('links',this)">Links &amp; Resources</div>
+  <div class="nav-item" onclick="showPage('igrid',this)">📸 IG Grid</div>
+</div>
+
+<div id="page-igrid" class="page">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:10px;">
+    <div class="section-title">Instagram Grid View</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <span style="font-size:11px;color:var(--ink3);">Columns:</span>
+      <div style="display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;">
+        <button class="cal-view-btn active" id="ig-col-3" onclick="setIGCols(3,this)">3</button>
+        <button class="cal-view-btn" id="ig-col-6" onclick="setIGCols(6,this)">6</button>
+        <button class="cal-view-btn" id="ig-col-9" onclick="setIGCols(9,this)">9</button>
+      </div>
+      <span style="font-size:11px;color:var(--ink3);margin-left:8px;">Filter:</span>
+      <select id="ig-filter" onchange="renderIGGrid()" style="font-size:11px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-family:inherit;background:var(--cream);">
+        <option value="all">All IG content</option>
+        <option value="feed">Feed only (no Stories)</option>
+        <option value="story">Stories only</option>
+      </select>
+      <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;"><input type="checkbox" id="ig-show-pending" onchange="renderIGGrid()"> Pending approval only</label>
+    </div>
+  </div>
+  <div id="ig-grid-body"></div>
+</div>
+
+<div id="page-planner" class="page active"><div id="planner-body"></div></div>
+
+<div id="page-calendar" class="page">
+  <div class="cal-controls">
+    <button class="cal-nav-btn" onclick="shiftCal(-4)">&#8249;&#8249; Prev 4wk</button>
+    <div class="cal-period-label" id="cal-period-label"></div>
+    <button class="cal-nav-btn" onclick="shiftCal(4)">Next 4wk &#8250;&#8250;</button>
+  </div>
+  <div class="type-legend" id="type-legend"></div>
+  <div class="cal-grid-wrap"><div class="cal-grid" id="cal-grid"></div></div>
+</div>
+
+<div id="page-meeting" class="page">
+  <div class="section-header">
+    <div class="section-title">Monday Meeting</div>
+    <div id="meet-date-lbl" style="font-size:12px;color:var(--ink3);"></div>
+  </div>
+  <div class="metric-strip" id="metric-strip"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    <div>
+      <div class="meeting-block"><h4>Needs Faye's Approval <span class="sub">— click to open</span></h4><div id="meet-appr-list"></div></div>
+      <div class="meeting-block"><h4>Active Blockers</h4><div id="meet-blocker-list"></div></div>
+    </div>
+    <div>
+      <div class="meeting-block"><h4>Platform Readiness</h4><div id="meet-plat-bar"></div></div>
+      <div class="meeting-block"><h4>Meeting Notes <span class="sub">— auto-saved</span></h4><textarea class="notes-area" id="meeting-notes" placeholder="Type notes here..." oninput="saveMeetingNotes()"></textarea></div>
+    </div>
+  </div>
+</div>
+
+<div id="page-ideas" class="page">
+  <div class="section-header"><div class="section-title">Ideas Bank</div></div>
+  <div class="idea-input-bar">
+    <select id="idea-author"><option>Brooklin</option><option>Alisa</option><option>Mia</option><option>Faye</option></select>
+    <input id="idea-input" placeholder="Drop a content idea..." onkeydown="if(event.key==='Enter')submitIdea()">
+    <button class="idea-submit" onclick="submitIdea()">Add Idea</button>
+  </div>
+  <div class="ideas-grid" id="ideas-grid"></div>
+</div>
+
+<div id="page-links" class="page">
+  <div class="links-header-bar">
+    <div class="section-title">Links &amp; Resources</div>
+    <div id="links-header-btns" style="display:flex;gap:8px;"></div>
+  </div>
+  <div class="links-grid" id="links-grid"></div>
+</div>
+
+<!-- POST MODAL -->
+<div class="overlay" id="post-overlay">
+  <div class="modal">
+    <div class="modal-head"><h3 id="modal-title">New Post</h3><button class="modal-close" onclick="closePostModal()">&#215;</button></div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-actions" id="modal-actions"></div>
+  </div>
+</div>
+
+<!-- PIN MODAL -->
+<div class="overlay" id="pin-overlay">
+  <div class="pin-modal">
+    <div class="pin-title">Mia's Dashboard</div>
+    <div class="pin-sub">This area is Mia-only. Enter your PIN to continue.</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+    </div>
+    <div class="pin-keypad">
+      <button class="pin-key" onclick="pinPress('1')">1</button><button class="pin-key" onclick="pinPress('2')">2</button><button class="pin-key" onclick="pinPress('3')">3</button>
+      <button class="pin-key" onclick="pinPress('4')">4</button><button class="pin-key" onclick="pinPress('5')">5</button><button class="pin-key" onclick="pinPress('6')">6</button>
+      <button class="pin-key" onclick="pinPress('7')">7</button><button class="pin-key" onclick="pinPress('8')">8</button><button class="pin-key" onclick="pinPress('9')">9</button>
+      <button class="pin-key del" onclick="pinPress('del')">&#9003;</button><button class="pin-key" onclick="pinPress('0')">0</button><button class="pin-key del" onclick="closePinModal()">&#215;</button>
+    </div>
+    <div class="pin-err" id="pin-err"></div>
+  </div>
+</div>
+
+<!-- TYPE MANAGER MODAL -->
+<div class="overlay" id="type-overlay">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-head"><h3>Manage Content Types</h3><button class="modal-close" onclick="closeTypeModal()">&#215;</button></div>
+    <div class="modal-body">
+      <div class="type-manager-grid" id="type-manager-grid"></div>
+      <div class="fsl" style="margin-top:10px;">Add New Type</div>
+      <div class="add-type-row"><input id="new-type-input" placeholder="e.g. Tutorial, Behind the Scenes..."><button class="add-st-btn" onclick="addContentType()">+ Add</button></div>
+      <div class="color-pick-row" id="color-pick-row"></div>
+    </div>
+    <div class="modal-actions"><button class="btn-save" onclick="closeTypeModal()">Done</button></div>
+  </div>
+</div>
+
+<!-- LINK MODAL -->
+<div class="overlay" id="link-overlay">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-head"><h3 id="link-modal-title">Add Link</h3><button class="modal-close" onclick="closeLinkModal()">&#215;</button></div>
+    <div class="modal-body" id="link-modal-body"></div>
+    <div class="modal-actions" id="link-modal-actions"></div>
+  </div>
+</div>
+
+<!-- EMAIL MODAL -->
+<div class="overlay" id="email-overlay">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-head"><h3 id="email-modal-title">Send Email</h3><button class="modal-close" onclick="closeEmailModal()">&#215;</button></div>
+    <div class="email-body-wrap" id="email-body-wrap"></div>
+  </div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="overlay" id="export-overlay">
+  <div class="modal">
+    <div class="modal-head"><h3>Export / Sync</h3><button class="modal-close" onclick="document.getElementById('export-overlay').classList.remove('open')">&#215;</button></div>
+    <div class="modal-body">
+      <div class="export-tabs">
+        <button class="export-tab active" onclick="showExportTab('schema',this)">1. SQL Setup</button>
+        <button class="export-tab" onclick="showExportTab('github',this)">2. GitHub Action</button>
+        <button class="export-tab" onclick="showExportTab('posts',this)">Posts JSON</button>
+        <button class="export-tab" onclick="showExportTab('ideas',this)">Ideas JSON</button>
+      </div>
+      <p style="font-size:11px;color:var(--ink2);margin-bottom:10px;">Step 1: Run the SQL in Supabase → Step 2: Add the GitHub Action to your repo → Step 3: Enter credentials in ⚙ Settings</p>
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <button class="copy-btn" onclick="forcePushToSupabase()" style="background:var(--sage);color:#fff;border-color:var(--sage);">Push Local Data → Supabase</button>
+      </div>
+      <div class="export-code" id="export-code"></div>
+      <button class="copy-btn" onclick="copyExport()">Copy to Clipboard</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ━━━ CONSTANTS ━━━
+const MIA_PIN='1234'; // ← Change this to your real PIN
+const PLATFORMS={ig:'Instagram',yt:'YouTube Shorts',tt:'TikTok'};
+const STATUSES=['idea','assigned','canva','approval','scheduled','live','blocked'];
+const PIPELINE_STEPS=[{key:'caption_due',label:'Caption Due'},{key:'owner_proof',label:'Owner Proof'},{key:'in_buffer',label:'In Buffer'},{key:'go_live',label:'Go Live'}];
+const ASSIGNEES=['Brooklin','Alisa','Mia','Faye'];
+const ACLASS={brooklin:'a-brooklin',alisa:'a-alisa',mia:'a-mia',faye:'a-faye'};
+const TEAM_EMAILS={Mia:'mia@bloomloft.com',Faye:'faye@bloomloft.com',Brooklin:'brooklin@bloomloft.com',Alisa:'alisa@bloomloft.com'};
+const COLOR_PALETTE=['#6b8f6b','#b86040','#7a5c8a','#4a7a9b','#b8952a','#3a8a7a','#9b4a6b','#8a6a3a','#4a6a9b','#7a8a3a'];
+const DEFAULT_TYPES=[{name:'Reel / Short',color:'#6b8f6b'},{name:'Static Post',color:'#b86040'},{name:'Carousel',color:'#7a5c8a'},{name:'Story',color:'#4a7a9b'},{name:'Tutorial',color:'#b8952a'},{name:'Vlog',color:'#3a8a7a'}];
+const PLAT_COLORS={ig:'#b86040',yt:'#6b8f6b',tt:'#7a5c8a'};
+
+// ━━━ STATE ━━━
+let posts=[],ideas=[],links=[],contentTypes=[];
+let currentRole='mia';
+let editingId=null,editingLinkId=null;
+let modalSubtasks=[],modalApproval='';
+let calWeekOffset=0;
+let exportMode='posts';
+let pinBuffer='';
+let selectedTypeColor=COLOR_PALETTE[0];
+let emailSelectedRecips=[];
+
+// ━━━ STORAGE & SUPABASE SYNC ━━━
+const uid=()=>Math.random().toString(36).slice(2,9);
+const today=(n=0)=>{const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().split('T')[0];};
+
+// ── Supabase credentials (stored in localStorage, set via Settings panel) ──
+// ── Hardcoded credentials — everyone connects automatically ──
+const SB_URL='https://nifjmtoqooywovgfzeij.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pZmptdG9xb295d292Z2Z6ZWlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMzYzNjAsImV4cCI6MjA5MjYxMjM2MH0.CcWqyMoWqHrveqao7HwWPsIonYfzPVLgeRK0_7iO2BE';
+function getSBUrl(){return localStorage.getItem('bl_sb_url')||SB_URL;}
+function getSBKey(){return localStorage.getItem('bl_sb_key')||SB_KEY;}
+function isSBConfigured(){return true;}
+
+function sbHeaders(extra={}){
+  return{
+    'Content-Type':'application/json',
+    'apikey':getSBKey(),
+    'Authorization':'Bearer '+getSBKey(),
+    ...extra
+  };
+}
+function sbFetch(url,opts={}){
+  return fetch(url,{mode:'cors',...opts,headers:sbHeaders(opts.headers||{})});
+}
+
+// ── Sync status indicator ──
+function setSyncStatus(msg,type='idle'){
+  const el=document.getElementById('sync-status');
+  if(!el)return;
+  const colors={idle:'var(--ink3)',syncing:'var(--gold)',ok:'var(--sage)',error:'var(--clay)'};
+  el.textContent=msg;el.style.color=colors[type]||'var(--ink3)';
+}
+
+// ── LOAD: try Supabase first, fall back to localStorage ──
+async function load(){
+  const n=localStorage.getItem('bl6_notes');
+  const el=document.getElementById('meeting-notes');
+  if(n&&el)el.value=n;
+  if(isSBConfigured()){
+    setSyncStatus('Syncing…','syncing');
+    try{
+      await loadFromSupabase();
+      setSyncStatus('Synced ✓','ok');
+      return;
+    }catch(e){
+      console.warn('Supabase load failed, using local:',e);
+      setSyncStatus('Offline — using local','error');
+    }
+  }
+  loadFromLocal();
+}
+
+function loadFromLocal(){
+  try{
+    posts=JSON.parse(localStorage.getItem('bl6_posts')||'null')||seedPosts();
+    ideas=JSON.parse(localStorage.getItem('bl6_ideas')||'null')||seedIdeas();
+    links=JSON.parse(localStorage.getItem('bl6_links')||'null')||seedLinks();
+    contentTypes=JSON.parse(localStorage.getItem('bl6_types')||'null')||[...DEFAULT_TYPES];
+  }catch(e){posts=seedPosts();ideas=seedIdeas();links=seedLinks();contentTypes=[...DEFAULT_TYPES];}
+}
+
+async function loadFromSupabase(){
+  const base=getSBUrl();
+  const [rp,ri,rl,rt]=await Promise.all([
+    sbFetch(base+'/rest/v1/content_posts?select=*'),
+    sbFetch(base+'/rest/v1/content_ideas?select=*'),
+    sbFetch(base+'/rest/v1/content_links?select=*'),
+    sbFetch(base+'/rest/v1/content_types?select=*'),
+  ]);
+  if(!rp.ok)throw new Error('posts: '+rp.status);
+  const [sp,si,sl,st]=await Promise.all([rp.json(),ri.json(),rl.json(),rt.json()]);
+  posts=sp.length?sp:seedPosts();
+  ideas=si.length?si:seedIdeas();
+  links=sl.length?sl:seedLinks();
+  contentTypes=st.length?st.map(t=>({name:t.name,color:t.color})):[...DEFAULT_TYPES];
+  // Mirror to localStorage as offline cache
+  saveLocal();
+}
+
+// ── SAVE: write to localStorage always, Supabase if configured ──
+const save=()=>{saveLocal();if(isSBConfigured())saveToSupabase();};
+
+function saveLocal(){
+  localStorage.setItem('bl6_posts',JSON.stringify(posts));
+  localStorage.setItem('bl6_ideas',JSON.stringify(ideas));
+  localStorage.setItem('bl6_links',JSON.stringify(links));
+  localStorage.setItem('bl6_types',JSON.stringify(contentTypes));
+}
+
+async function saveToSupabase(){
+  setSyncStatus('Saving…','syncing');
+  const base=getSBUrl();
+  const h=sbHeaders();
+  try{
+    // Upsert all tables
+    await Promise.all([
+      sbFetch(base+'/rest/v1/content_posts',{method:'POST',headers:{'Prefer':'resolution=merge-duplicates'},body:JSON.stringify(posts)}),
+      sbFetch(base+'/rest/v1/content_ideas',{method:'POST',headers:{'Prefer':'resolution=merge-duplicates'},body:JSON.stringify(ideas)}),
+      sbFetch(base+'/rest/v1/content_links',{method:'POST',headers:{'Prefer':'resolution=merge-duplicates'},body:JSON.stringify(links)}),
+      ...contentTypes.map(t=>sbFetch(base+'/rest/v1/content_types',{method:'POST',headers:{'Prefer':'resolution=merge-duplicates'},body:JSON.stringify({name:t.name,color:t.color})})),
+    ]);
+    setSyncStatus('Saved ✓  '+new Date().toLocaleTimeString(),'ok');
+  }catch(e){
+    setSyncStatus('Save failed — check connection','error');
+    console.error('Supabase save error:',e);
+  }
+}
+
+// ── Delete a single row from Supabase ──
+async function deleteFromSupabase(table, id){
+  if(!isSBConfigured()) return;
+  try{
+    await sbFetch(getSBUrl()+'/rest/v1/'+table+'?id=eq.'+id, {method:'DELETE', headers:{'Prefer':'return=minimal'}});
+    setSyncStatus('Deleted ✓  '+new Date().toLocaleTimeString(),'ok');
+  }catch(e){
+    setSyncStatus('Delete sync failed','error');
+    console.error('Supabase delete error:',e);
+  }
+}
+
+// ── Subtask-only patch (lightweight update for checkbox toggles) ──
+async function patchSubtasks(postId,subtasks){
+  saveLocal();
+  if(!isSBConfigured())return;
+  const base=getSBUrl();
+  try{
+    await sbFetch(base+'/rest/v1/content_posts?id=eq.'+postId,{
+      method:'PATCH',headers:{'Prefer':'return=minimal'},
+      body:JSON.stringify({subtasks,updated_at:new Date().toISOString()})
+    });
+    setSyncStatus('Saved ✓  '+new Date().toLocaleTimeString(),'ok');
+  }catch(e){setSyncStatus('Sync error','error');}
+}
+
+const saveMeetingNotes=()=>localStorage.setItem('bl6_notes',document.getElementById('meeting-notes').value);
+
+// ── Settings panel ──
+function openSettings(){
+  document.getElementById('settings-overlay').classList.add('open');
+  document.getElementById('sb-url-input').value=getSBUrl();
+  document.getElementById('sb-key-input').value=getSBKey();
+}
+function closeSettings(){document.getElementById('settings-overlay').classList.remove('open');}
+function saveSettings(){
+  const url=document.getElementById('sb-url-input').value.trim().replace(/\/$/,'');
+  const key=document.getElementById('sb-key-input').value.trim();
+  localStorage.setItem('bl_sb_url',url);
+  localStorage.setItem('bl_sb_key',key);
+  closeSettings();
+  if(url&&key){setSyncStatus('Connecting…','syncing');load().then(()=>{renderPlanner();renderCalendar();renderLinks();});}
+}
+async function testConnection(){
+  if(!isSBConfigured()){alert('Enter URL and key first');return;}
+  setSyncStatus('Testing…','syncing');
+  try{
+    const r=await sbFetch(getSBUrl()+'/rest/v1/content_posts?select=id&limit=1');
+    if(r.ok){setSyncStatus('Connection OK ✓','ok');alert('Connected to Supabase successfully!');}
+    else{setSyncStatus('Error '+r.status,'error');alert('Connection failed: '+r.status+'. Check your URL and key.');}
+  }catch(e){setSyncStatus('Connection failed','error');alert('Connection failed: '+e.message);}
+}
+
+const typeColor=(name)=>{const t=contentTypes.find(x=>x.name===name);return t?t.color:'#9a9087';};
+
+// ━━━ SEED DATA ━━━
+function seedPosts(){return [
+  {id:uid(),platform:'ig',type:'Static Post',title:'"What is Bloom Loft?" — the answer post',description:'Still photo of the studio. Caption introduces Bloom Loft to someone brand new. Ends with intro offer + booking link.',uses:'Studio shots from Alisa Apr 27 capture',assignee:'Alisa',status:'scheduled',week:1,pipeline:{caption_due:today(-4),owner_proof:today(0),in_buffer:today(0),go_live:today(3)},tags:['direct-invite'],blocker:'',approval:'approved',subtasks:[{id:uid(),group:'Caption',text:'Write intro caption draft',done:true},{id:uid(),group:'Caption',text:'Add CTA + booking link',done:true},{id:uid(),group:'Design',text:'Pull studio photo from Alisa capture folder',done:true},{id:uid(),group:'Design',text:'Add Bloom Loft text overlay in Canva',done:false},{id:uid(),group:'Approval',text:'Send Canva draft to Faye for review',done:false},{id:uid(),group:'Approval',text:'Faye approves on Storrito',done:false},{id:uid(),group:'Publish',text:'Schedule in Storrito',done:false}]},
+  {id:uid(),platform:'ig',type:'Carousel',title:'Member testimonial — real words, real person',description:'Real member photo or studio shot. Exact quote from a loyal member. Ends with intro offer link.',uses:'Testimonial from Brooklin Apr 30 capture — check shared Drive',assignee:'Brooklin',status:'approval',week:1,pipeline:{caption_due:today(-4),owner_proof:today(0),in_buffer:today(0),go_live:today(7)},tags:['social-proof'],blocker:'',approval:'pending',subtasks:[{id:uid(),group:'Content',text:'Collect member quote + permission',done:true},{id:uid(),group:'Content',text:'Select photo',done:true},{id:uid(),group:'Design',text:'Create carousel slides in Canva',done:true},{id:uid(),group:'Approval',text:'Send Canva draft to Faye',done:true},{id:uid(),group:'Approval',text:'Faye raw approval via Storrito',done:false},{id:uid(),group:'Publish',text:'Schedule in Storrito',done:false}]},
+  {id:uid(),platform:'ig',type:'Story',title:'Week 1 Stories — Mon & Fri',description:'Mon: Poll — "Have you ever tried yoga?" · Fri: Reshare Friday testimonial post.',uses:'',assignee:'Alisa',status:'assigned',week:1,pipeline:{caption_due:today(-4),owner_proof:today(0),in_buffer:today(0),go_live:today(4)},tags:['stories'],blocker:'',approval:'',subtasks:[{id:uid(),group:'Monday Story',text:'Create poll sticker: "Have you tried yoga?"',done:false},{id:uid(),group:'Monday Story',text:'Add Bloom Loft branding',done:false},{id:uid(),group:'Friday Story',text:'Reshare testimonial post as story',done:false},{id:uid(),group:'Approval',text:'Faye approves story frames',done:false}]},
+  {id:uid(),platform:'yt',type:'Reel / Short',title:'10-min beginner flow: no props needed',description:'Evergreen SEO content. Long-tail search friendly. Easy for newcomers.',uses:'Film during Tuesday 5:30 PM class',assignee:'Brooklin',status:'canva',week:2,pipeline:{caption_due:today(3),owner_proof:today(6),in_buffer:today(7),go_live:today(10)},tags:['evergreen'],blocker:'',approval:'',subtasks:[{id:uid(),group:'Filming',text:'Film class clip on Tuesday',done:true},{id:uid(),group:'Editing',text:'Edit to 10-min cut',done:false},{id:uid(),group:'Editing',text:'Add captions + intro card',done:false},{id:uid(),group:'Approval',text:'Faye approves final cut',done:false},{id:uid(),group:'Publish',text:'Upload to YouTube Shorts',done:false}]},
+  {id:uid(),platform:'ig',type:'Static Post',title:'June 6 wellness tabling event promo',description:'Promo post for outdoor expo-style pop-up. ~40 attendees, drop-in format. Burbank local.',uses:'Event graphic to be created in Canva',assignee:'Mia',status:'blocked',week:2,pipeline:{caption_due:today(2),owner_proof:today(5),in_buffer:today(6),go_live:today(9)},tags:['event'],blocker:'Waiting on confirmed event details + address from Faye',approval:'',subtasks:[{id:uid(),group:'Info',text:'Confirm event address + time with Faye',done:false},{id:uid(),group:'Design',text:'Create event graphic in Canva',done:false},{id:uid(),group:'Approval',text:'Faye approves graphic + caption',done:false},{id:uid(),group:'Publish',text:'Schedule 2 weeks before event',done:false}]},
+  {id:uid(),platform:'tt',type:'Reel / Short',title:'Yoga myth: "You need to be flexible"',description:'Trending audio. Quick 15-sec rebuttal with demo clip. Relatable hook for beginners.',uses:'Quick demo clip in studio — no major setup',assignee:'Alisa',status:'idea',week:3,pipeline:{caption_due:today(8),owner_proof:today(11),in_buffer:today(12),go_live:today(15)},tags:['trending'],blocker:'',approval:'',subtasks:[{id:uid(),group:'Concept',text:'Find trending audio on TikTok',done:false},{id:uid(),group:'Filming',text:'Film demo clip',done:false},{id:uid(),group:'Approval',text:'Faye approves for upload',done:false},{id:uid(),group:'Publish',text:'Post directly to TikTok',done:false}]},
+  {id:uid(),platform:'ig',type:'Reel / Short',title:'"Tending the Inner World" teaser — soft launch',description:'Teaser content for the 90-day holistic program. Build anticipation before mid-July launch.',uses:'Faye to provide program imagery + talking points',assignee:'Mia',status:'idea',week:4,pipeline:{caption_due:today(14),owner_proof:today(17),in_buffer:today(18),go_live:today(21)},tags:['program'],blocker:'',approval:'',subtasks:[{id:uid(),group:'Strategy',text:'Get program key messages from Faye',done:false},{id:uid(),group:'Design',text:'Create teaser graphic series in Canva',done:false},{id:uid(),group:'Approval',text:'Faye approves all teaser assets',done:false},{id:uid(),group:'Publish',text:'Schedule all 3 teasers',done:false}]},
+];}
+function seedIdeas(){return [{id:uid(),author:'Brooklin',text:'Trending audio: "This is the sign you needed" — yoga version',date:new Date().toLocaleDateString()},{id:uid(),author:'Alisa',text:'Prop tutorial: how to use a yoga block for tight hips',date:new Date().toLocaleDateString()},{id:uid(),author:'Mia',text:'Day-in-the-life of Bloom Loft opening morning — behind the scenes',date:new Date().toLocaleDateString()}];}
+function seedLinks(){return [
+  {id:uid(),title:'Storrito Scheduler',url:'https://storrito.com',description:'Schedule and approve Instagram Stories. Faye approves here before content goes live.',category:'Scheduling',assignees:['Faye','Mia']},
+  {id:uid(),title:'Bloom Loft Canva Workspace',url:'https://canva.com',description:'Shared team workspace for all graphics. Brooklin and Alisa create here.',category:'Design',assignees:['Brooklin','Alisa','Mia']},
+  {id:uid(),title:'Bloom Loft Instagram',url:'https://instagram.com/bloomloft',description:'Main Instagram profile — our #1 platform.',category:'Social',assignees:['Mia','Faye']},
+  {id:uid(),title:'Momence Booking',url:'https://momence.com',description:'Class scheduling, member management, and the 90-day program.',category:'Operations',assignees:['Faye','Mia']},
+  {id:uid(),title:'Bloom Loft Google Drive',url:'https://drive.google.com',description:'Shared asset folder — capture photos, templates, documents.',category:'Files',assignees:['Brooklin','Alisa','Mia','Faye']},
+  {id:uid(),title:'TikTok Studio',url:'https://tiktok.com',description:'TikTok content creation and analytics dashboard.',category:'Social',assignees:['Alisa','Mia']},
+];}
+
+// ━━━ ROLE / PERMISSIONS ━━━
+const canEdit=()=>currentRole==='mia';
+const canApprove=()=>false;
+
+// Filter posts to current role's assignee — Mia + Faye see all
+function visiblePosts(){
+  if(currentRole==='mia'||currentRole==='faye') return posts;
+  return posts.filter(p=>(p.assignee||'').toLowerCase()===currentRole.toLowerCase());
+}
+
+function trySetRole(role,el){
+  if(role==='mia'){openPinModal(el);}
+  else{setRole(role,el);}
+}
+function setRole(role,el){
+  currentRole=role;
+  document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));
+  if(el)el.classList.add('active');
+  renderPlanner();renderCalendar();renderLinks();
+}
+
+// ━━━ PIN ━━━
+let _pendingRoleEl=null;
+// PIN can be triggered by (1) switching to Mia role, or (2) navigating to a Mia-only page
+let _pinMode='role'; // 'role' | 'page'
+function openPinModal(el){_pinMode='role';_pendingRoleEl=el;_openPin();}
+function openPinModalForPage(){_pinMode='page';_openPin();}
+function _openPin(){pinBuffer='';document.getElementById('pin-err').textContent='';updatePinDots();document.getElementById('pin-overlay').classList.add('open');}
+function closePinModal(){document.getElementById('pin-overlay').classList.remove('open');pinBuffer='';updatePinDots();}
+function pinPress(k){
+  if(k==='del'){pinBuffer=pinBuffer.slice(0,-1);}
+  else if(pinBuffer.length<4){pinBuffer+=k;}
+  updatePinDots();
+  if(pinBuffer.length===4)setTimeout(checkPin,100);
+}
+function updatePinDots(){document.querySelectorAll('.pin-dot').forEach((d,i)=>d.classList.toggle('filled',i<pinBuffer.length));}
+function checkPin(){
+  if(pinBuffer===MIA_PIN){
+    closePinModal();
+    setRole('mia',_pendingRoleEl);
+  } else {
+    document.getElementById('pin-err').textContent='Incorrect PIN. Try again.';pinBuffer='';updatePinDots();
+  }
+}
+
+// ━━━ PAGE SWITCHING ━━━
+function showPage(page,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  if(el)el.classList.add('active');
+  if(page==='planner')renderPlanner();
+  if(page==='calendar')renderCalendar();
+  if(page==='meeting')renderMeeting();
+  if(page==='ideas')renderIdeas();
+  if(page==='links')renderLinks();
+  if(page==='igrid')renderIGGrid();
+}
+
+// ━━━ CONTENT TYPE MANAGER ━━━
+function openTypeModal(){renderTypeModal();document.getElementById('type-overlay').classList.add('open');}
+function closeTypeModal(){document.getElementById('type-overlay').classList.remove('open');renderPlanner();renderCalendar();}
+function renderTypeModal(){
+  document.getElementById('type-manager-grid').innerHTML=contentTypes.map((t,i)=>`<div class="type-chip"><div class="type-chip-swatch" style="background:${t.color}"></div><span class="type-chip-name">${t.name}</span><button class="type-chip-del" onclick="removeType(${i})">&#215;</button></div>`).join('');
+  document.getElementById('color-pick-row').innerHTML=COLOR_PALETTE.map(c=>`<div class="cswatch ${c===selectedTypeColor?'sel':''}" style="background:${c}" onclick="selectColor('${c}',this)"></div>`).join('');
+}
+function selectColor(c,el){selectedTypeColor=c;document.querySelectorAll('.cswatch').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');}
+function addContentType(){
+  const input=document.getElementById('new-type-input');
+  const name=input.value.trim();
+  if(!name)return;
+  if(contentTypes.find(t=>t.name.toLowerCase()===name.toLowerCase())){alert('Type already exists');return;}
+  contentTypes.push({name,color:selectedTypeColor});
+  input.value='';save();renderTypeModal();
+}
+function removeType(i){contentTypes.splice(i,1);save();renderTypeModal();}
+
+// ━━━ PLANNER ━━━
+function renderPlanner(){
+  const body=document.getElementById('planner-body');
+  let html='';
+  if(canEdit()){html+=`<div style="margin-bottom:1rem;"><button class="week-add-btn" onclick="openTypeModal()" style="padding:5px 14px;">&#9881; Manage Content Types</button></div>`;}
+
+  // Group posts by their actual go_live week (Mon–Sun)
+  // Posts with no go_live date fall into an "Unscheduled" bucket
+  const weekMap = {}; // key = "YYYY-MM-DD" of that week's Monday
+  const unscheduled = [];
+
+  visiblePosts().forEach(p => {
+    const gl = p.pipeline && p.pipeline.go_live;
+    if (!gl) { unscheduled.push(p); return; }
+    const d = new Date(gl + 'T00:00:00');
+    const dow = d.getDay();
+    const mon = new Date(d);
+    mon.setDate(d.getDate() - (dow === 0 ? 6 : dow - 1));
+    const key = mon.toISOString().split('T')[0];
+    if (!weekMap[key]) weekMap[key] = { monday: mon, posts: [] };
+    weekMap[key].posts.push(p);
+  });
+
+  // Sort weeks chronologically
+  const sortedWeeks = Object.keys(weekMap).sort();
+
+  if (!sortedWeeks.length && !unscheduled.length) {
+    html += '<div class="empty-col">No posts yet — add one to get started</div>';
+  }
+
+  sortedWeeks.forEach((key, idx) => {
+    const { monday, posts: wPosts } = weekMap[key];
+    const sun = new Date(monday); sun.setDate(monday.getDate() + 6);
+    const label = monday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) +
+                  ' – ' + sun.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    // Sort posts within week by go_live date
+    wPosts.sort((a,b) => (a.pipeline?.go_live||'') < (b.pipeline?.go_live||'') ? -1 : 1);
+    html += `<div class="week-block">
+      <div class="week-header">
+        <div class="week-label">Week of ${label}</div>
+        <div class="week-divider"></div>
+        ${canEdit() ? `<button class="week-add-btn" onclick="openNewPostOnDate('${key}')">+ Add Post</button>` : ''}
+      </div>
+      <div class="cards-grid">${wPosts.map(p => renderCard(p)).join('')}</div>
+    </div>`;
+  });
+
+  if (unscheduled.length) {
+    html += `<div class="week-block">
+      <div class="week-header">
+        <div class="week-label" style="color:var(--ink3);">Unscheduled</div>
+        <div class="week-divider"></div>
+        ${canEdit() ? `<button class="week-add-btn" onclick="openNewPost(1)">+ Add Post</button>` : ''}
+      </div>
+      <div class="cards-grid">${unscheduled.map(p => renderCard(p)).join('')}</div>
+    </div>`;
+  }
+
+  body.innerHTML = html;
+}
+
+function weekDateRange(w){
+  // kept for backward compat but planner no longer uses week numbers
+  const base=new Date();const day=base.getDay();
+  const mon=new Date(base);mon.setDate(base.getDate()-day+1+(w-1)*7);
+  const sun=new Date(mon);sun.setDate(mon.getDate()+6);
+  return `${mon.toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${sun.toLocaleDateString('en-US',{month:'short',day:'numeric'})}`;
+}
+
+function renderCard(p){
+  const groups={};
+  (p.subtasks||[]).forEach(s=>{if(!groups[s.group])groups[s.group]=[];groups[s.group].push(s);});
+  const total=(p.subtasks||[]).length;
+  const done=(p.subtasks||[]).filter(s=>s.done).length;
+  const pct=total?Math.round((done/total)*100):0;
+  const tc=typeColor(p.type);
+  let apprBadge='';
+  if(p.approval==='approved')apprBadge='<span class="appr-badge approved">&#10003; Approved</span>';
+  else if(p.approval==='revisions')apprBadge='<span class="appr-badge revisions">&#8629; Revisions needed</span>';
+  else if(p.approval==='pending')apprBadge='<span class="appr-badge pending">&#8987; Awaiting Faye</span>';
+  const stHtml=Object.entries(groups).map(([grp,items])=>`<div class="sg-label">${grp}</div>${items.map(s=>`<div class="st-item"><input type="checkbox" class="st-check" ${s.done?'checked':''} onchange="toggleST('${p.id}','${s.id}',this.checked)"><span class="st-text ${s.done?'done':''}" id="st-${s.id}">${s.text}</span></div>`).join('')}`).join('');
+  const pipeHtml=PIPELINE_STEPS.map(step=>{
+    const dv=p.pipeline?p.pipeline[step.key]:'';
+    const isActive=step.key===currentPipelineStep(p);
+    const isOver=dv&&new Date(dv)<new Date()&&!isActive&&pct<100;
+    const cls=isActive?'active':(pct===100?'done':(isOver?'overdue':''));
+    return `<div class="pipeline-step ${cls}"><span class="ps-name">${step.label}</span><span class="ps-date">${dv?formatDate(dv):'—'}</span></div>`;
+  }).join('');
+  return `<div class="post-card ${p.blocker?'blocked':''}" id="card-${p.id}">
+    <div class="type-bar" style="background:${tc}"></div>
+    <div class="card-header">
+      <div class="card-tags">
+        <span class="tag ${p.platform}">${PLATFORMS[p.platform]}</span>
+        <span class="tag" style="background:${tc}20;color:${tc};border:1px solid ${tc}40;">${p.type}</span>
+        ${(p.tags||[]).map(t=>`<span class="tag" style="background:var(--warm);color:var(--ink2);border:1px solid var(--border);">${t}</span>`).join('')}
+      </div>
+      <span class="card-assignee ${ACLASS[p.assignee.toLowerCase()]}">${p.assignee}</span>
+    </div>
+    <div class="pipeline-track">${pipeHtml}</div>
+    <div class="card-body">
+      <div class="card-title">${p.title}</div>
+      ${p.description?`<div class="card-desc">${p.description}</div>`:''}
+      ${p.uses?`<div class="card-uses">${p.uses}</div>`:''}
+      ${apprBadge}
+    </div>
+    ${Object.keys(groups).length?`<div class="subtasks">${stHtml}</div>`:''}
+    ${p.blocker?`<div class="blocker-notice">${p.blocker}</div>`:''}
+    <div class="card-footer">
+      <div class="card-progress"><div class="pb-bg"><div class="pb-fill" id="pb-${p.id}" style="width:${pct}%"></div></div><span class="pb-lbl" id="pl-${p.id}">${done}/${total} done</span></div>
+      ${canEdit()?`<button class="card-edit-btn" onclick="openPost('${p.id}')">Edit</button>`:`<button class="card-edit-btn" style="color:var(--ink3);" onclick="openPost('${p.id}')">View</button>`}
+      ${canApprove()&&(p.status==='approval'||p.status==='canva')?`<button class="card-edit-btn" style="background:var(--gold-bg);color:var(--gold);border-color:var(--gold-mid);" onclick="openPost('${p.id}')">Approve</button>`:''}
+    </div>
+  </div>`;
+}
+
+function currentPipelineStep(p){
+  const done=(p.subtasks||[]).filter(s=>s.done).length;
+  const total=(p.subtasks||[]).length;
+  if(!total||done===0)return'caption_due';
+  if(done<total*.5)return'owner_proof';
+  if(done<total*.85)return'in_buffer';
+  return'go_live';
+}
+function toggleST(postId,stId,val){
+  const post=posts.find(p=>p.id===postId);if(!post)return;
+  const st=post.subtasks.find(s=>s.id===stId);
+  if(st){st.done=val;const el=document.getElementById('st-'+stId);if(el)el.className='st-text'+(val?' done':'');}
+  patchSubtasks(postId,post.subtasks); // lightweight patch, not full save
+  const total=post.subtasks.length,done=post.subtasks.filter(s=>s.done).length,pct=total?Math.round((done/total)*100):0;
+  const fill=document.getElementById('pb-'+postId);const lbl=document.getElementById('pl-'+postId);
+  if(fill)fill.style.width=pct+'%';if(lbl)lbl.textContent=`${done}/${total} done`;
+}
+
+// ━━━ CALENDAR ━━━
+function renderCalendar(){
+  // Legend
+  const legEl=document.getElementById('type-legend');
+  legEl.innerHTML='<span style="font-size:9px;font-weight:600;color:var(--ink3);letter-spacing:.5px;text-transform:uppercase;margin-right:4px;">Content Types:</span>'+
+    contentTypes.map(t=>`<div class="legend-item"><div class="legend-dot" style="background:${t.color}"></div>${t.name}</div>`).join('')+
+    '<div class="legend-item" style="margin-left:10px;"><div class="legend-dot" style="background:var(--clay)"></div>IG</div>'+
+    '<div class="legend-item"><div class="legend-dot" style="background:var(--sage)"></div>YT</div>'+
+    '<div class="legend-item"><div class="legend-dot" style="background:var(--plum)"></div>TT</div>';
+
+  // Calculate start Monday
+  const base=new Date();
+  const dow=base.getDay();
+  const start=new Date(base);
+  start.setDate(base.getDate()-(dow===0?6:dow-1)+calWeekOffset*7);
+  start.setHours(0,0,0,0);
+
+  const end=new Date(start);end.setDate(end.getDate()+27);
+  document.getElementById('cal-period-label').textContent=
+    `${start.toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${end.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`;
+
+  const todayStr=new Date().toISOString().split('T')[0];
+  const dayNames=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+  // Build all 28 dates
+  const dates=[];
+  for(let i=0;i<28;i++){const d=new Date(start);d.setDate(d.getDate()+i);dates.push(d);}
+
+  const grid=document.getElementById('cal-grid');
+  grid.style.gridTemplateColumns=`64px repeat(28,1fr)`;
+
+  let html=`<div class="cal-corner"></div>`;
+
+  // ROW 1 — all 28 date headers
+  dates.forEach(d=>{
+    const ds=d.toISOString().split('T')[0];
+    const isMon=d.getDay()===1;const isToday=ds===todayStr;
+    const dIdx=d.getDay()===0?6:d.getDay()-1;
+    // Month label on 1st of month or first date
+    const showMonth=d.getDate()===1||d===dates[0];
+    html+=`<div class="cal-day-head ${isToday?'today-head':''} ${isMon?'mon-head':''}">
+      ${showMonth?`<div style="font-size:7px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--clay);line-height:1;">${d.toLocaleDateString('en-US',{month:'short'})}</div>`:''}
+      <div class="dhd">${dayNames[dIdx]}</div>
+      <div class="dhn">${d.getDate()}</div>
+    </div>`;
+  });
+
+  // ROW 2 — POSTS row label + 28 cells
+  html+=`<div class="cal-row-label posts-lbl" style="border-bottom:2px solid var(--sage-mid);"><span>Posts</span></div>`;
+  for(let i=0;i<28;i++){
+    const date=dates[i];
+    const ds=date.toISOString().split('T')[0];
+    const isMon=date.getDay()===1;const isToday=ds===todayStr;
+    const dayPosts=visiblePosts().filter(p=>p.pipeline&&p.pipeline.go_live===ds&&p.type!=='Story');
+    let cell='';
+    if(isMon)cell+=`<div class="mon-bar">M</div>`;
+    dayPosts.forEach(p=>{
+      const tc=typeColor(p.type);
+      const pc=PLAT_COLORS[p.platform]||'#888';
+      cell+=`<div class="cal-pill" style="background:${tc}22;color:${tc};border:1px solid ${tc}44;" onclick="event.stopPropagation();openPost('${p.id}')" title="${PLATFORMS[p.platform]}: ${p.title}"><span class="pdot" style="background:${pc}"></span>${p.title.slice(0,14)}${p.title.length>14?'…':''}</div>`;
+    });
+    if(canEdit())cell+=`<button class="cal-add" onclick="event.stopPropagation();openNewPostOnDate('${ds}')" title="Add post">+</button>`;
+    html+=`<div class="cal-cell post-row ${isToday?'today-cell':''} ${isMon?'mon-cell':''}" onclick="${canEdit()?`openNewPostOnDate('${ds}')`:''}">${cell}</div>`;
+  }
+
+  // ROW 3 — STORIES row label + 28 cells
+  html+=`<div class="cal-row-label stories-lbl" style="border-bottom:2px solid var(--sky-mid);"><span>Stories</span></div>`;
+  for(let i=0;i<28;i++){
+    const date=dates[i];
+    const ds=date.toISOString().split('T')[0];
+    const isMon=date.getDay()===1;const isToday=ds===todayStr;
+    const stories=visiblePosts().filter(p=>p.pipeline&&p.pipeline.go_live===ds&&p.type==='Story');
+    let cell='';
+    stories.forEach(p=>{
+      const tc=typeColor(p.type);
+      cell+=`<div class="cal-pill" style="background:${tc}22;color:${tc};border:1px solid ${tc}44;" onclick="event.stopPropagation();openPost('${p.id}')" title="${p.title}"><span class="pdot" style="background:var(--sky)"></span>${p.title.slice(0,14)}${p.title.length>14?'…':''}</div>`;
+    });
+    if(canEdit())cell+=`<button class="cal-add" onclick="event.stopPropagation();openNewStoryOnDate('${ds}')" title="Add story">+</button>`;
+    html+=`<div class="cal-cell story-row ${isToday?'today-cell':''} ${isMon?'mon-cell':''}" onclick="${canEdit()?`openNewStoryOnDate('${ds}')`:''}">${cell}</div>`;
+  }
+
+  document.getElementById('cal-grid').innerHTML=html;
+}
+
+function shiftCal(n){calWeekOffset+=n;renderCalendar();}
+function openNewPostOnDate(ds){if(!canEdit())return;editingId=null;modalSubtasks=[];modalApproval='';buildPostModal(null,1);setTimeout(()=>{const el=document.getElementById('f-go-live');if(el)el.value=ds;},50);}
+function openNewStoryOnDate(ds){if(!canEdit())return;editingId=null;modalSubtasks=[];modalApproval='';buildPostModal(null,1);setTimeout(()=>{const gl=document.getElementById('f-go-live');if(gl)gl.value=ds;const tp=document.getElementById('f-type');if(tp){for(let i=0;i<tp.options.length;i++){if(tp.options[i].text==='Story'){tp.selectedIndex=i;break;}}};},50);}
+
+// ━━━ IG GRID ━━━
+let igCols=3;
+function setIGCols(n,el){igCols=n;document.querySelectorAll('#ig-col-3,#ig-col-6,#ig-col-9').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderIGGrid();}
+function renderIGGrid(){
+  const filter=document.getElementById('ig-filter')?.value||'all';
+  const pendingOnly=document.getElementById('ig-show-pending')?.checked||false;
+  const body=document.getElementById('ig-grid-body');
+  if(!body)return;
+
+  // Filter to IG posts only
+  let igPosts=visiblePosts().filter(p=>p.platform==='ig');
+  if(filter==='feed') igPosts=igPosts.filter(p=>p.type!=='Story');
+  if(filter==='story') igPosts=igPosts.filter(p=>p.type==='Story');
+  if(pendingOnly) igPosts=igPosts.filter(p=>p.approval==='pending'||(!p.approval&&p.status==='approval'));
+
+  // Sort by go_live date
+  igPosts=igPosts.slice().sort((a,b)=>{
+    const da=a.pipeline?.go_live||'9999';const db=b.pipeline?.go_live||'9999';
+    return da<db?-1:da>db?1:0;
+  });
+
+  if(!igPosts.length){body.innerHTML='<div class="empty-col">No Instagram posts found for this filter</div>';return;}
+
+  // Group by actual go_live week
+  const igWeekMap={};
+  const igUnscheduled=[];
+  igPosts.forEach(p=>{
+    const gl=p.pipeline&&p.pipeline.go_live;
+    if(!gl){igUnscheduled.push(p);return;}
+    const d=new Date(gl+'T00:00:00');
+    const dow=d.getDay();
+    const mon=new Date(d);mon.setDate(d.getDate()-(dow===0?6:dow-1));
+    const key=mon.toISOString().split('T')[0];
+    if(!igWeekMap[key])igWeekMap[key]={monday:mon,posts:[]};
+    igWeekMap[key].posts.push(p);
+  });
+  if(igUnscheduled.length)igWeekMap['9999-99-99']={monday:null,posts:igUnscheduled};
+
+  let html='';
+  Object.keys(igWeekMap).sort().forEach(key=>{
+    const {monday,posts:wPosts}=igWeekMap[key];
+    const sun=monday?new Date(monday):null;if(sun)sun.setDate(monday.getDate()+6);
+    const label=monday
+      ?monday.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' – '+sun.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
+      :'Unscheduled';
+    wPosts.sort((a,b)=>(a.pipeline?.go_live||'')>(b.pipeline?.go_live||'')?1:-1);
+    html+=`<div class="ig-week-label">Week of ${label}</div>`;
+    // Pad to fill grid rows evenly
+    const padded=[...wPosts];
+    while(padded.length%igCols!==0)padded.push(null);
+    html+=`<div class="ig-grid cols-${igCols}">`;
+    padded.forEach(p=>{
+      if(!p){
+        const ds=monday?monday.toISOString().split('T')[0]:'';
+        html+=canEdit()?`<div class="ig-empty-slot" onclick="openNewPostOnDate('${ds}')">+</div>`:`<div class="ig-empty-slot" style="cursor:default;"></div>`;
+        return;
+      }
+      const tc=typeColor(p.type);
+      const isStory=p.type==='Story';
+      const apprCls=p.approval==='approved'?'approved':p.approval==='revisions'?'revisions':p.approval==='pending'?'pending':'';
+      const apprLbl=p.approval==='approved'?'Approved':p.approval==='revisions'?'Revisions':p.approval==='pending'?'Awaiting Faye':'';
+      const statusColor=p.status==='blocked'?'var(--clay)':p.status==='live'||p.status==='scheduled'?'var(--sage)':p.status==='approval'?'var(--gold)':'var(--ink3)';
+      const canOpenIG=canEdit()||canApprove();
+      html+=`<div class="ig-cell" ${canOpenIG?`onclick="openPost('${p.id}')"`:''} style="${canOpenIG?'':`cursor:default;`}">
+        <div class="ig-type-bar" style="background:${tc}"></div>
+        ${isStory?'<div class="ig-story-indicator">Story</div>':''}
+        <div class="ig-cell-inner">
+          <div class="ig-cell-title">${p.title}</div>
+          <div class="ig-cell-date">${p.pipeline?.go_live?formatDate(p.pipeline.go_live):''}</div>
+          <div class="ig-cell-status" style="background:${statusColor}22;color:${statusColor};border:1px solid ${statusColor}44;">${p.status}</div>
+        </div>
+        <div class="ig-overlay">
+          <div class="ig-overlay-title">${p.title}</div>
+          <div class="ig-overlay-sub">${p.type} · ${p.pipeline?.go_live?formatDate(p.pipeline.go_live):'No date'}</div>
+          <div class="ig-overlay-sub">${p.assignee}</div>
+          ${apprLbl?`<div class="ig-overlay-badge ${apprCls}">${apprLbl}</div>`:''}
+          ${p.blocker?'<div style="font-size:9px;color:var(--clay-bg);margin-top:2px;">⚑ Blocked</div>':''}
+          ${canOpenIG?'<div style="font-size:9px;color:rgba(255,255,255,.6);margin-top:4px;">Click to open</div>':''}
+        </div>
+      </div>`;
+    });
+    html+=`</div>`;
+  });
+  body.innerHTML=html;
+}
+
+
+// ━━━ POST MODAL ━━━
+function openNewPost(week=1){if(!canEdit())return;editingId=null;modalSubtasks=[];modalApproval='';buildPostModal(null,week);}
+function openPost(id){
+  const p=posts.find(x=>x.id===id);if(!p)return;
+  editingId=id;modalSubtasks=JSON.parse(JSON.stringify(p.subtasks||[]));modalApproval=p.approval||'';
+  buildPostModal(p,p.week);
+}
+function buildPostModal(p,week){
+  document.getElementById('modal-title').textContent=p?'Edit Post':'New Post';
+  const ro=!canEdit();
+  const showAppr=canApprove()&&p&&(p.status==='approval'||p.status==='canva');
+  const typeOpts=contentTypes.map(t=>`<option ${p?.type===t.name?'selected':''}>${t.name}</option>`).join('');
+  document.getElementById('modal-body').innerHTML=`
+    ${showAppr?buildApprPanel(p):''}
+    <div class="fs">
+      <div class="fsl">Post Details</div>
+      <div class="fg" style="margin-bottom:8px;">
+        <div class="fr"><label>Platform</label><select id="f-platform" ${ro?'disabled':''}><option value="ig" ${p?.platform==='ig'?'selected':''}>Instagram</option><option value="yt" ${p?.platform==='yt'?'selected':''}>YouTube Shorts</option><option value="tt" ${p?.platform==='tt'?'selected':''}>TikTok</option></select></div>
+        <div class="fr"><label>Content Type ${canEdit()?`<span style="color:var(--sage);cursor:pointer;font-size:9px;" onclick="openTypeModal()">&#9881; Manage</span>`:''}</label><select id="f-type" ${ro?'disabled':''}>${typeOpts}</select></div>
+      </div>
+      <div class="fr"><label>Title / Concept</label><input id="f-title" placeholder="e.g. 5-minute morning yoga flow" ${ro?'readonly':''}></div>
+      <div class="fr"><label>Description</label><textarea id="f-desc" ${ro?'readonly':''}>${p?.description||''}</textarea></div>
+      <div class="fr"><label>Asset Notes (&#8594; Uses)</label><input id="f-uses" placeholder="e.g. Studio shots from Alisa Apr 27" ${ro?'readonly':''}></div>
+      <div class="fg">
+        <div class="fr"><label>Assigned To</label><select id="f-assignee" ${ro?'disabled':''}>${ASSIGNEES.map(a=>`<option ${p?.assignee===a?'selected':''}>${a}</option>`).join('')}</select></div>
+        <div class="fr"><label>Status</label><select id="f-status" ${ro?'disabled':''}>${STATUSES.map(s=>`<option value="${s}" ${p?.status===s?'selected':''}>${s}</option>`).join('')}</select></div>
+      </div>
+    </div>
+    <div class="fs">
+      <div class="fsl">Pipeline Dates</div>
+      <div class="fg3">
+        <div class="fr"><label>Caption Due</label><input type="date" id="f-caption-due" value="${p?.pipeline?.caption_due||''}" ${ro?'readonly':''}></div>
+        <div class="fr"><label>Owner Proof</label><input type="date" id="f-owner-proof" value="${p?.pipeline?.owner_proof||''}" ${ro?'readonly':''}></div>
+        <div class="fr"><label>In Buffer</label><input type="date" id="f-in-buffer" value="${p?.pipeline?.in_buffer||''}" ${ro?'readonly':''}></div>
+      </div>
+      <div class="fr" style="max-width:200px;margin-top:8px;"><label>Go Live Date</label><input type="date" id="f-go-live" value="${p?.pipeline?.go_live||''}" ${ro?'readonly':''}></div>
+    </div>
+    <div class="fs">
+      <div class="fg">
+        <div class="fr"><label>Tags (comma-separated)</label><input id="f-tags" placeholder="e.g. direct-invite, event" ${ro?'readonly':''}></div>
+        <div class="fr"><label>Week</label><select id="f-week" ${ro?'disabled':''}>${[1,2,3,4].map(w=>`<option value="${w}" ${(p?.week||week)===w?'selected':''}>Week ${w}</option>`).join('')}</select></div>
+      </div>
+    </div>
+    <div class="fs"><div class="fsl">Blocker (leave blank if none)</div><div class="fr"><input id="f-blocker" placeholder="e.g. Waiting on event details from Faye" ${ro?'readonly':''}></div></div>
+    ${canEdit()?buildSTEditor():''}
+  `;
+  let actions='';
+  if(canEdit()){actions=`<button class="btn-save" onclick="savePost()">Save Post</button>${editingId?`<button class="btn-del" onclick="deletePost()">Delete</button>`:''}<button class="btn-cancel" onclick="closePostModal()">Cancel</button>`;}
+  else if(canApprove()){actions=`<button class="btn-save" onclick="saveApproval()">Save Approval</button><button class="btn-cancel" onclick="closePostModal()">Close</button>`;}
+  else{actions=`<button class="btn-cancel" onclick="closePostModal()" style="flex:1;">Close</button>`;}
+  document.getElementById('modal-actions').innerHTML=actions;
+  // Safely set text field values to avoid HTML injection issues
+  if(p){
+    const setVal=(id,val)=>{const el=document.getElementById(id);if(el)el.value=val||'';};
+    setVal('f-title',    p.title);
+    setVal('f-uses',     p.uses);
+    setVal('f-tags',     (p.tags||[]).join(', '));
+    setVal('f-blocker',  p.blocker);
+  }
+  document.getElementById('post-overlay').classList.add('open');
+  refreshSTList();
+}
+function buildApprPanel(p){
+  const note=modalApproval==='approved'?'<div class="appr-note approved">&#10003; Marked as approved</div>':modalApproval==='revisions'?'<div class="appr-note revisions">&#8629; Revisions requested</div>':'';
+  return `<div class="appr-panel"><div class="apl">Faye — Canva / Raw Content Approval</div><div class="appr-btns"><button class="appr-btn approve" onclick="setApproval('approved')">Approve</button><button class="appr-btn revise" onclick="setApproval('revisions')">Request Revisions</button><button class="appr-btn pend" onclick="setApproval('pending')">Pending</button></div><div id="appr-note">${note}</div></div>`;
+}
+function setApproval(val){
+  modalApproval=val;
+  const el=document.getElementById('appr-note');
+  if(el)el.innerHTML=val==='approved'?'<div class="appr-note approved">&#10003; Marked as approved</div>':val==='revisions'?'<div class="appr-note revisions">&#8629; Revisions requested</div>':'';
+}
+function saveApproval(){const p=posts.find(x=>x.id===editingId);if(p){p.approval=modalApproval;save();}closePostModal();renderPlanner();}
+function buildSTEditor(){return `<div class="fs"><div class="fsl">Subtasks</div><div class="st-add-row"><select id="st-group" style="max-width:110px;border:1px solid var(--border);border-radius:6px;padding:5px 7px;font-size:11px;font-family:inherit;background:var(--cream);"><option>Caption</option><option>Design</option><option>Filming</option><option>Editing</option><option>Approval</option><option>Publish</option><option>Content</option><option>Strategy</option><option>Info</option><option>Other</option></select><input id="st-input" placeholder="Subtask description..." onkeydown="if(event.key==='Enter'){event.preventDefault();addST();}"><button class="add-st-btn" onclick="addST()">+ Add</button></div><div class="st-edit-list" id="st-edit-list"></div></div>`;}
+function addST(){const input=document.getElementById('st-input');const group=document.getElementById('st-group').value;if(!input||!input.value.trim())return;modalSubtasks.push({id:uid(),group,text:input.value.trim(),done:false});input.value='';refreshSTList();}
+function removeST(id){modalSubtasks=modalSubtasks.filter(s=>s.id!==id);refreshSTList();}
+function refreshSTList(){const el=document.getElementById('st-edit-list');if(!el)return;el.innerHTML=modalSubtasks.map(s=>`<div class="st-edit-row"><span class="st-grp-badge">${s.group}</span><span>${s.text}</span><button class="st-rm-btn" onclick="removeST('${s.id}')">&#215;</button></div>`).join('');}
+function savePost(){
+  if(!canEdit())return;
+  const data={id:editingId||uid(),platform:document.getElementById('f-platform').value,type:document.getElementById('f-type').value,title:document.getElementById('f-title').value.trim(),description:document.getElementById('f-desc').value.trim(),uses:document.getElementById('f-uses').value.trim(),assignee:document.getElementById('f-assignee').value,status:document.getElementById('f-status').value,week:parseInt(document.getElementById('f-week').value),pipeline:{caption_due:document.getElementById('f-caption-due').value,owner_proof:document.getElementById('f-owner-proof').value,in_buffer:document.getElementById('f-in-buffer').value,go_live:document.getElementById('f-go-live').value},tags:document.getElementById('f-tags').value.split(',').map(t=>t.trim()).filter(Boolean),blocker:document.getElementById('f-blocker').value.trim(),approval:editingId?posts.find(p=>p.id===editingId)?.approval||'':'',subtasks:modalSubtasks};
+  if(!data.title){alert('Please enter a title');return;}
+  if(editingId){const i=posts.findIndex(p=>p.id===editingId);posts[i]=data;}else posts.push(data);
+  save();closePostModal();renderPlanner();renderCalendar();
+}
+function deletePost(){if(!editingId||!canEdit())return;const id=editingId;posts=posts.filter(p=>p.id!==id);saveLocal();deleteFromSupabase('content_posts',id);closePostModal();renderPlanner();renderCalendar();}
+function closePostModal(){document.getElementById('post-overlay').classList.remove('open');editingId=null;}
+
+// ━━━ LINKS ━━━
+function renderLinks(){
+  const btnsEl=document.getElementById('links-header-btns');
+  btnsEl.innerHTML=`<button class="topbar-action" onclick="openEmailAll()">&#9993; Email Team</button>${canEdit()?`<button class="topbar-action" onclick="openNewLink()">+ Add Link</button>`:''}`;
+  const grid=document.getElementById('links-grid');
+  if(!links.length){grid.innerHTML='<div class="empty-col">No links yet</div>';return;}
+  grid.innerHTML=links.map(l=>{
+    const assigneeChips=(l.assignees||[]).map(a=>`<span class="card-assignee ${ACLASS[a.toLowerCase()]}" style="font-size:10px;padding:2px 7px;">${a}</span>`).join('');
+    return `<div class="link-card">
+      <div class="link-card-head">
+        <span class="link-cat-tag">${l.category}</span>
+        <div class="link-card-actions">
+          <button class="link-action-btn email-btn" onclick="openEmailLink('${l.id}')">&#9993; Email</button>
+          ${canEdit()?`<button class="link-action-btn" onclick="openEditLink('${l.id}')">Edit</button>`:''}
+          <button class="link-action-btn" onclick="window.open('${l.url}','_blank')">Open &#8599;</button>
+        </div>
+      </div>
+      <div class="link-card-body">
+        <div class="link-title">${l.title}</div>
+        ${l.description?`<div class="link-desc">${l.description}</div>`:''}
+        <div class="link-url">${l.url}</div>
+        ${assigneeChips?`<div class="link-assignees">${assigneeChips}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+function openNewLink(){editingLinkId=null;buildLinkModal(null);document.getElementById('link-overlay').classList.add('open');}
+function openEditLink(id){editingLinkId=id;buildLinkModal(links.find(x=>x.id===id));document.getElementById('link-overlay').classList.add('open');}
+function closeLinkModal(){document.getElementById('link-overlay').classList.remove('open');}
+function buildLinkModal(l){
+  document.getElementById('link-modal-title').textContent=l?'Edit Link':'Add Link';
+  const CATS=['Scheduling','Design','Social','Operations','Files','Analytics','Other'];
+  document.getElementById('link-modal-body').innerHTML=`<div class="fs"><div class="fg" style="margin-bottom:8px;"><div class="fr"><label>Title</label><input id="lf-title" value="${l?.title||''}" placeholder="e.g. Storrito"></div><div class="fr"><label>Category</label><select id="lf-category">${CATS.map(c=>`<option ${l?.category===c?'selected':''}>${c}</option>`).join('')}</select></div></div><div class="fr"><label>URL</label><input id="lf-url" value="${l?.url||''}" placeholder="https://..."></div><div class="fr"><label>Description</label><textarea id="lf-desc">${l?.description||''}</textarea></div><div class="fr"><label>Relevant Team Members</label><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">${ASSIGNEES.map(a=>`<label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;"><input type="checkbox" id="lf-a-${a}" ${(l?.assignees||[]).includes(a)?'checked':''}> ${a}</label>`).join('')}</div></div></div>`;
+  document.getElementById('link-modal-actions').innerHTML=`<button class="btn-save" onclick="saveLink()">Save Link</button>${editingLinkId?`<button class="btn-del" onclick="deleteLink()">Delete</button>`:''}<button class="btn-cancel" onclick="closeLinkModal()">Cancel</button>`;
+}
+function saveLink(){
+  const data={id:editingLinkId||uid(),title:document.getElementById('lf-title').value.trim(),url:document.getElementById('lf-url').value.trim(),description:document.getElementById('lf-desc').value.trim(),category:document.getElementById('lf-category').value,assignees:ASSIGNEES.filter(a=>document.getElementById('lf-a-'+a)?.checked)};
+  if(!data.title||!data.url){alert('Title and URL required');return;}
+  if(editingLinkId){const i=links.findIndex(l=>l.id===editingLinkId);links[i]=data;}else links.push(data);
+  save();closeLinkModal();renderLinks();
+}
+function deleteLink(){if(!editingLinkId)return;const id=editingLinkId;links=links.filter(l=>l.id!==id);saveLocal();deleteFromSupabase('content_links',id);closeLinkModal();renderLinks();}
+
+// ━━━ EMAIL ━━━
+function openEmailAll(){emailSelectedRecips=[...ASSIGNEES];buildEmailModal('Team Update — Bloom Loft Content','Hi team,\n\nHere\'s a quick update on our content plan:\n\n[Add your message here]\n\nThanks,\nMia');document.getElementById('email-modal-title').textContent='Email Team';document.getElementById('email-overlay').classList.add('open');}
+function openEmailLink(id){const l=links.find(x=>x.id===id);emailSelectedRecips=[...(l?.assignees||ASSIGNEES)];buildEmailModal(`Resource: ${l?.title||''}`,`Hi,\n\nHere's the link to ${l?.title||'this resource'}:\n${l?.url||''}\n\n${l?.description||''}\n\nLet me know if you have any questions.\n\nThanks,\nMia`);document.getElementById('email-modal-title').textContent=`Email: ${l?.title}`;document.getElementById('email-overlay').classList.add('open');}
+function closeEmailModal(){document.getElementById('email-overlay').classList.remove('open');}
+function buildEmailModal(subject,body){
+  const recips=ASSIGNEES.map(a=>`<div class="email-recip ${emailSelectedRecips.includes(a)?'sel':''}" onclick="toggleRecip('${a}',this)"><span class="card-assignee ${ACLASS[a.toLowerCase()]}" style="font-size:10px;padding:2px 7px;">${a}</span><span style="font-size:10px;">${TEAM_EMAILS[a]}</span></div>`).join('');
+  document.getElementById('email-body-wrap').innerHTML=`<div class="ef" style="margin-bottom:8px;"><label>To (click to toggle)</label><div class="email-to-row">${recips}</div></div><div class="ef"><label>Subject</label><input id="email-subject" value="${subject}"></div><div class="ef"><label>Message</label><textarea id="email-body">${body}</textarea></div><div style="display:flex;gap:7px;margin-top:10px;"><button class="email-send-btn" onclick="sendEmail()">Open in Mail App &#8599;</button><button class="btn-cancel" onclick="closeEmailModal()">Cancel</button></div><div style="font-size:10px;color:var(--ink3);margin-top:6px;">Opens your default mail client with recipients and message pre-filled. Update ${Object.values(TEAM_EMAILS).join(', ')} in the code with real emails.</div>`;
+}
+function toggleRecip(name,el){
+  if(emailSelectedRecips.includes(name)){emailSelectedRecips=emailSelectedRecips.filter(r=>r!==name);el.classList.remove('sel');}
+  else{emailSelectedRecips.push(name);el.classList.add('sel');}
+}
+function sendEmail(){
+  const to=emailSelectedRecips.map(r=>TEAM_EMAILS[r]).join(',');
+  const sub=encodeURIComponent(document.getElementById('email-subject').value);
+  const bod=encodeURIComponent(document.getElementById('email-body').value);
+  if(!to){alert('Select at least one recipient');return;}
+  window.location.href=`mailto:${to}?subject=${sub}&body=${bod}`;
+}
+
+// ━━━ MONDAY MEETING ━━━
+function renderMeeting(){
+  const vp=visiblePosts();const total=vp.length,live=vp.filter(p=>p.status==='live'||p.status==='scheduled').length,blocked=vp.filter(p=>p.blocker).length,appr=vp.filter(p=>p.status==='approval').length;
+  document.getElementById('metric-strip').innerHTML=`<div class="metric-card"><div class="metric-val">${total}</div><div class="metric-lbl">Total Posts Planned</div></div><div class="metric-card"><div class="metric-val">${live}</div><div class="metric-lbl">Scheduled / Live</div></div><div class="metric-card"><div class="metric-val" style="color:var(--gold)">${appr}</div><div class="metric-lbl">Need Faye's Approval</div></div><div class="metric-card"><div class="metric-val" style="color:var(--clay)">${blocked}</div><div class="metric-lbl">Blocked</div></div>`;
+  const apprPosts=visiblePosts().filter(p=>p.status==='approval');
+  document.getElementById('meet-appr-list').innerHTML=apprPosts.length?apprPosts.map(p=>`<div class="meet-row" onclick="openPost('${p.id}')"><span class="badge-plat ${p.platform}">${PLATFORMS[p.platform]}</span><span class="meet-title">${p.title}</span><span class="meet-date">${p.pipeline?.go_live?formatDate(p.pipeline.go_live):''}</span></div>`).join(''):'<div style="font-size:12px;color:var(--ink3);padding:6px 0;">None pending</div>';
+  const blPosts=visiblePosts().filter(p=>p.blocker);
+  document.getElementById('meet-blocker-list').innerHTML=blPosts.length?blPosts.map(p=>`<div class="meet-row" onclick="openPost('${p.id}')"><span class="meet-title"><strong style="display:block;margin-bottom:2px;">${p.title}</strong><span style="color:var(--clay);font-size:10px;">&#9873; ${p.blocker}</span></span></div>`).join(''):'<div style="font-size:12px;color:var(--ink3);padding:6px 0;">No active blockers</div>';
+  document.getElementById('meet-plat-bar').innerHTML=['ig','yt','tt'].map(pl=>{const all=visiblePosts().filter(p=>p.platform===pl);const ready=all.filter(p=>p.status==='live'||p.status==='scheduled');const pct=all.length?Math.round((ready.length/all.length)*100):0;return `<div style="display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--border);"><span class="badge-plat ${pl}" style="min-width:75px;">${PLATFORMS[pl]}</span><div style="flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:var(--sage);border-radius:3px;"></div></div><span style="font-size:11px;color:var(--ink3);min-width:48px;text-align:right;">${ready.length}/${all.length} ready</span></div>`;}).join('');
+  const n=localStorage.getItem('bl6_notes');const ne=document.getElementById('meeting-notes');if(n&&ne)ne.value=n;
+  const nmd=new Date();const diff=(1-nmd.getDay()+7)%7||7;nmd.setDate(nmd.getDate()+diff);
+  document.getElementById('meet-date-lbl').textContent='Next Monday: '+nmd.toLocaleDateString('en-US',{month:'long',day:'numeric'});
+}
+
+// ━━━ IDEAS ━━━
+function renderIdeas(){
+  const grid=document.getElementById('ideas-grid');
+  if(!ideas.length){grid.innerHTML='<div class="empty-col">No ideas yet — add one above!</div>';return;}
+  grid.innerHTML=ideas.map(idea=>`<div class="idea-card"><div class="idea-meta"><span class="card-assignee ${ACLASS[idea.author.toLowerCase()]}" style="font-size:10px;padding:2px 8px;">${idea.author}</span><span class="idea-date">${idea.date}</span></div><div class="idea-text">${idea.text}</div><div class="idea-actions">${canEdit()?`<button class="idea-btn promote" onclick="promoteIdea('${idea.id}')">Promote to post</button>`:''}<button class="idea-btn" onclick="deleteIdea('${idea.id}')">Remove</button></div></div>`).join('');
+  // Ideas bank: everyone can add + remove. Promote to post = Mia only.
+}
+function submitIdea(){const input=document.getElementById('idea-input');const author=document.getElementById('idea-author').value;if(!input.value.trim())return;ideas.unshift({id:uid(),author,text:input.value.trim(),date:new Date().toLocaleDateString()});input.value='';save();renderIdeas();}
+function deleteIdea(id){ideas=ideas.filter(i=>i.id!==id);saveLocal();deleteFromSupabase('content_ideas',id);renderIdeas();}
+function promoteIdea(id){if(!canEdit())return;const idea=ideas.find(i=>i.id===id);if(!idea)return;editingId=null;modalSubtasks=[];modalApproval='';buildPostModal(null,1);setTimeout(()=>{document.getElementById('f-title').value=idea.text;document.getElementById('f-assignee').value=idea.author;},50);}
+
+// ━━━ EXPORT ━━━
+const SQL_SCHEMA=`-- ═══ Bloom Loft Content Hub — Supabase Setup ═══
+-- 1. Run this in Supabase SQL Editor
+-- 2. Paste your Project URL + anon key into ⚙ Settings in the app
+
+CREATE TABLE IF NOT EXISTS content_posts (
+  id TEXT PRIMARY KEY, platform TEXT, type TEXT NOT NULL, title TEXT NOT NULL,
+  description TEXT, uses TEXT, assignee TEXT, status TEXT DEFAULT 'idea',
+  week INT DEFAULT 1, pipeline JSONB DEFAULT '{}', tags TEXT[] DEFAULT '{}',
+  blocker TEXT DEFAULT '', approval TEXT DEFAULT '', subtasks JSONB DEFAULT '[]',
+  created_at TIMESTAMPTZ DEFAULT NOW(), updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE TABLE IF NOT EXISTS content_ideas (id TEXT PRIMARY KEY, author TEXT, text TEXT, date TEXT, created_at TIMESTAMPTZ DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS content_links (id TEXT PRIMARY KEY, title TEXT, url TEXT, description TEXT, category TEXT, assignees TEXT[] DEFAULT '{}', created_at TIMESTAMPTZ DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS content_types (id SERIAL PRIMARY KEY, name TEXT UNIQUE NOT NULL, color TEXT DEFAULT '#6b8f6b');
+ALTER TABLE content_posts  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE content_ideas  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE content_links  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE content_types  ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "rw_posts"  ON content_posts  FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "rw_ideas"  ON content_ideas  FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "rw_links"  ON content_links  FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "rw_types"  ON content_types  FOR ALL USING (true) WITH CHECK (true);`;
+
+const GH_ACTION=`# Save as: .github/workflows/backup.yml in your GitHub repo
+# Add secrets: SUPABASE_URL and SUPABASE_KEY in repo Settings > Secrets
+
+name: Weekly Bloom Loft Backup
+on:
+  schedule:
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch from Supabase
+        run: |
+          mkdir -p backup
+          for table in content_posts content_ideas content_links content_types; do
+            curl -s "\${{ secrets.SUPABASE_URL }}/rest/v1/$table?select=*" \
+              -H "apikey: \${{ secrets.SUPABASE_KEY }}" \
+              -H "Authorization: Bearer \${{ secrets.SUPABASE_KEY }}" \
+              > backup/$table.json
+          done
+          echo "Backed up $(date -u)" > backup/last_backup.txt
+      - name: Commit
+        run: |
+          git config user.name "Bloom Loft Bot"
+          git config user.email "bot@bloomloft.com"
+          git add backup/
+          git diff --staged --quiet || git commit -m "Backup $(date +%Y-%m-%d)" && git push`;
+
+function openExport(){document.getElementById('export-overlay').classList.add('open');showExportTab('schema',document.querySelector('.export-tab'));refreshExportCode();}
+function showExportTab(mode,el){exportMode=mode;document.querySelectorAll('.export-tab').forEach(t=>t.classList.remove('active'));if(el)el.classList.add('active');refreshExportCode();}
+function refreshExportCode(){const el=document.getElementById('export-code');if(!el)return;if(exportMode==='posts')el.textContent=JSON.stringify(posts,null,2);else if(exportMode==='ideas')el.textContent=JSON.stringify(ideas,null,2);else if(exportMode==='github')el.textContent=GH_ACTION;else el.textContent=SQL_SCHEMA;}
+function copyExport(){navigator.clipboard.writeText(document.getElementById('export-code').textContent).then(()=>{const btn=document.querySelector('.copy-btn');if(btn){btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy to Clipboard',1800);}});}
+async function forcePushToSupabase(){
+  if(!isSBConfigured()){alert('Configure Supabase in Settings first.');return;}
+  if(!confirm('Push all local data to Supabase? This will overwrite existing data.'))return;
+  await saveToSupabase();
+}
+
+// ━━━ UTILS ━━━
+const formatDate=str=>{if(!str)return'';const d=new Date(str+'T00:00:00');return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});};
+
+// ━━━ INIT ━━━
+// Wipe any stale data from older versions of this file
+['bl4_','bl5_'].forEach(prefix=>['posts','ideas','links','types','notes'].forEach(k=>localStorage.removeItem(prefix+k)));
+
+// Load from Supabase, then render
+load().then(()=>{
+  renderPlanner();
+  renderCalendar();
+  renderLinks();
+  renderIdeas();
+});
+
+// Poll Supabase every 30 seconds so all team members see live updates
+setInterval(async ()=>{
+  if(document.hidden) return; // don't poll when tab is not visible
+  try{
+    await loadFromSupabase();
+    // Re-render current active page only
+    const activePage = document.querySelector('.page.active')?.id?.replace('page-','');
+    if(activePage==='planner')   renderPlanner();
+    if(activePage==='calendar')  renderCalendar();
+    if(activePage==='igrid')     renderIGGrid();
+    if(activePage==='meeting')   renderMeeting();
+    if(activePage==='ideas')     renderIdeas();
+    if(activePage==='links')     renderLinks();
+  }catch(e){ /* silent fail — already showing local data */ }
+}, 30000);
+</script>
+
+<!-- SETTINGS MODAL -->
+<div class="overlay" id="settings-overlay">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-head"><h3>⚙ Supabase Settings</h3><button class="modal-close" onclick="closeSettings()">&#215;</button></div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--ink2);margin-bottom:14px;line-height:1.6;">Connect to Supabase so all team members see live data. Find your credentials in your Supabase project under <strong>Settings → API</strong>.</p>
+      <div class="fr" style="margin-bottom:10px;">
+        <label>Supabase Project URL</label>
+        <input id="sb-url-input" placeholder="https://xxxxxxxxxxxx.supabase.co" style="font-family:monospace;font-size:12px;">
+      </div>
+      <div class="fr" style="margin-bottom:14px;">
+        <label>Supabase Anon Key (public)</label>
+        <input id="sb-key-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." style="font-family:monospace;font-size:11px;">
+      </div>
+      <div style="background:var(--warm);border-radius:7px;padding:12px;font-size:11px;color:var(--ink2);line-height:1.7;margin-bottom:14px;">
+        <strong>How to set up:</strong><br>
+        1. Create a free Supabase project at supabase.com<br>
+        2. Go to <strong>Export / Sync → SQL Setup</strong> tab and run the SQL<br>
+        3. Go to <strong>Settings → API</strong> and copy your URL + anon key here<br>
+        4. Click Test Connection, then Save<br>
+        5. Use Export / Sync → Push Local Data to seed your database
+      </div>
+      <div id="settings-sync-note" style="font-size:11px;color:var(--ink3);min-height:16px;margin-bottom:10px;"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-save" onclick="saveSettings()">Save &amp; Connect</button>
+      <button class="btn-cancel" onclick="testConnection()" style="background:var(--sky-bg);color:var(--sky);border-color:var(--sky-mid);">Test Connection</button>
+      <button class="btn-cancel" onclick="closeSettings()">Cancel</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
